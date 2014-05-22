@@ -10,27 +10,28 @@
 #include <regular_expressions.h>
 
 namespace regular_expressions {
-Expression make_symbol(uint val) {
-  return Expression(new VariantExpression(val));
-}
 print::result_type print::operator()(uint value) const {
   printf("%c", value);
 }
 
-print::result_type print::operator()(const binary_op<concat> &binary) const {
-  apply_visitor((*this), binary.left);
-  apply_visitor((*this), binary.right);
+print::result_type print::operator()(const multy_op<concat> &op) const {
+  for (auto expr : op.children)
+    boost::apply_visitor(*this, expr);
 }
 
-print::result_type print::operator()(const binary_op<alternation> &binary) const {
-  apply_visitor((*this), binary.left);
-  printf(" | ");
-  apply_visitor((*this), binary.right);
+print::result_type print::operator()(const multy_op<alternation> &op) const {
+  auto expr = op.children.begin();
+  apply_visitor(*this, *expr);
+  ++expr;
+  for (;expr < op.children.end(); ++expr) {
+    printf(" | ");
+    boost::apply_visitor(*this, *expr);
+  }
 }
 
 print::result_type print::operator()(const unary_op<kleene> &unary) const {
   printf("(");
-  apply_visitor((*this), unary.expr);
+  boost::apply_visitor(*this, unary.expr);
   printf(")*");
 }
 }
