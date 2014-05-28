@@ -8,10 +8,11 @@
  */
 
 #include <regular_expressions.h>
+#include <iostream>
 
 namespace regular_expressions {
 print::result_type print::operator()(uint value) const {
-  printf("%c", value);
+  printf("%u", value);
 }
 
 print::result_type print::operator()(const multy_op<concat> &op) const {
@@ -34,4 +35,10 @@ print::result_type print::operator()(const unary_op<kleene> &unary) const {
   boost::apply_visitor(*this, unary.expr);
   printf(")*");
 }
+
+void print_expression(const Expression &expr) {
+  boost::apply_visitor(print(), expr);
+  std::cout << std::endl;
+}
+
 }

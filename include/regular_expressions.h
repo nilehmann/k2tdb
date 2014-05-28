@@ -56,6 +56,7 @@ class print: public visitor<void> {
   result_type operator()(const unary_op<kleene> &unary) const;
 };
 
+void print_expression(const Expression &expr);
 
 }  // namespace regular_expressions
 #endif  // INCLUDE_REGULAR_EXPRESSIONS_H_
