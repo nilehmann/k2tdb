@@ -30,15 +30,15 @@ namespace re = regular_expressions;
 
 BOOST_FUSION_ADAPT_STRUCT(
     re::multy_op<re::concat>,
-    (std::vector<re::Expression>, children)
+    (std::vector<re::RegExp>, children)
 )
 BOOST_FUSION_ADAPT_STRUCT(
     re::multy_op<re::alternation>,
-    (std::vector<re::Expression>, children)
+    (std::vector<re::RegExp>, children)
 )
 BOOST_FUSION_ADAPT_STRUCT(
     re::unary_op<re::kleene>,
-    (re::Expression, expr)
+    (re::RegExp, expr)
 )
 
 BOOST_PHOENIX_ADAPT_FUNCTION(void, print_expression, re::print_expression, 1)
@@ -68,7 +68,7 @@ using fusion::traits::deduce;
 
 typedef std::string::const_iterator str_iterator;
 class regexp_parser
-    : public qi::grammar<str_iterator, re::Expression(), ascii::space_type> {
+    : public qi::grammar<str_iterator, re::RegExp(), ascii::space_type> {
  public:
   regexp_parser(SymbolTable *st, StringTable *strtab)
       :base_type(start), symtable(st), strtable(strtab) {
@@ -113,12 +113,12 @@ class regexp_parser
  private:
   SymbolTable *symtable;
   StringTable *strtable;
-  qi::rule<str_iterator, re::Expression(), ascii::space_type> start;
+  qi::rule<str_iterator, re::RegExp(), ascii::space_type> start;
   qi::rule<str_iterator, re::multy_op<re::alternation>(), ascii::space_type>
   alternation;
   qi::rule<str_iterator, re::multy_op<re::concat>(), ascii::space_type> concat;
-  qi::rule<str_iterator, re::Expression(), ascii::space_type> kleene;
-  qi::rule<str_iterator, re::Expression(), ascii::space_type> term;
+  qi::rule<str_iterator, re::RegExp(), ascii::space_type> kleene;
+  qi::rule<str_iterator, re::RegExp(), ascii::space_type> term;
   qi::rule<str_iterator, unsigned(), ascii::space_type> variable;
   qi::rule<str_iterator, unsigned(), ascii::space_type> literal;
 };

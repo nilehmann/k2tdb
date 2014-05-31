@@ -1,0 +1,8 @@
+*.o
+*.pyo
+*.a
+*.swp
+bin/*
+!bin/delete.me
+html/
+latex/
