@@ -7,12 +7,18 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <cli.h>
-#include <boost/spirit/include/qi_parse.hpp>
-#include <iostream>
+//#include <cli.h>
+//#include <boost/spirit/include/qi_parse.hpp>
+//#include <iostream>
+
+#include <driver.h>
+#include <scanner.h>
 
 
 int main() {
+  Driver d;
+  d.parse_stdio();
+  /*
     using boost::spirit::ascii::space;
 
     commands::command_parser grammar;
@@ -29,5 +35,7 @@ int main() {
         std::cout << std::endl << "> ";
     }
     return 0;
+    */
+
 }
 

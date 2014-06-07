@@ -11,34 +11,63 @@
 #include <iostream>
 
 namespace regular_expressions {
-print::result_type print::operator()(uint value) const {
-  printf("%u", value);
-}
 
-print::result_type print::operator()(const multy_op<concat> &op) const {
-  for (auto expr : op.children)
-    boost::apply_visitor(*this, expr);
-}
 
-print::result_type print::operator()(const multy_op<alternation> &op) const {
-  auto expr = op.children.begin();
-  boost::apply_visitor(*this, *expr);
-  ++expr;
-  for (;expr < op.children.end(); ++expr) {
-    printf(" | ");
-    boost::apply_visitor(*this, *expr);
+class print: public boost::static_visitor<void> {
+ public:
+  result_type operator()(uint value) const {
+    printf("%u", value);
   }
-}
 
-print::result_type print::operator()(const unary_op<kleene> &unary) const {
-  printf("(");
-  boost::apply_visitor(*this, unary.expr);
-  printf(")*");
-}
+  result_type operator()(const multy_op<concat> &op) const {
+    for (auto &expr : op.children)
+      boost::apply_visitor(*this, expr);
+  }
+
+  result_type operator()(const multy_op<alternation> &op) const {
+    printf("(");
+    auto expr = op.children.begin();
+    boost::apply_visitor(*this, *expr);
+    ++expr;
+    for (;expr < op.children.end(); ++expr) {
+      printf(" | ");
+      boost::apply_visitor(*this, *expr);
+    }
+    printf(")");
+  }
+
+  result_type operator()(const unary_op<kleene> &unary) const {
+    printf("(");
+    boost::apply_visitor(*this, unary.expr);
+    printf(")*");
+  }
+};
+
 
 void print_expression(const RegExp &expr) {
   boost::apply_visitor(print(), expr);
   std::cout << std::endl;
+}
+
+class Push: public boost::static_visitor<void> {
+ public:
+  RegExp &&expr;
+  Push(RegExp &&e): expr(std::move(e)) {}
+
+  result_type operator()(uint) const {}
+
+  template<typename Op>
+  result_type operator()(multy_op<Op> &multy) const {
+    multy.children.push_back(std::move(expr));
+  }
+
+  template<typename Op>
+  result_type operator()(unary_op<Op> &unary) const {
+    unary.expr = std::move(expr);
+  }
+};
+void push_expr(RegExp &expr, RegExp &&val) {
+  boost::apply_visitor(Push(std::move(val)), expr);  
 }
 
 }

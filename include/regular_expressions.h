@@ -15,6 +15,7 @@
 #include <boost/variant/recursive_wrapper.hpp>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
+#include <array>
 
 namespace regular_expressions {
 
@@ -32,30 +33,42 @@ typedef boost::variant<
           boost::recursive_wrapper<unary_op<kleene>>
         > RegExp;
 
+void print_expression(const RegExp &expr);
+void push_expr(RegExp &expr, RegExp &&val);
+
+
+
 template<typename OpTag>
 struct multy_op {
+  multy_op(RegExp &&exp) noexcept{
+    children.push_back(std::move(exp));
+  }
+  multy_op(multy_op &&rhs) noexcept: children() {
+    children.swap(rhs.children);
+  }
+  multy_op(const multy_op &rhs) = delete;
   std::vector<RegExp> children;
 };
 
-
 template<typename OpTag>
 struct unary_op {
+  unary_op(RegExp &&e) noexcept: expr(std::move(e)) {}
+  unary_op(unary_op &&rhs) noexcept: expr(std::move(rhs.expr)) {}
+  unary_op(const unary_op &rhs) = delete;
   RegExp expr;
 };
 
 
-class print: public boost::static_visitor<void> {
- public:
-  result_type operator()(uint value) const;
 
-  result_type operator()(const multy_op<concat> &binary) const;
+}  // nameespace regular_expressions
 
-  result_type operator()(const multy_op<alternation> &binary) const;
+/*
+namespace std {
+template<>
+vector<regular_expressions::RegExp>::vector(
+    const vector<regular_expressions::RegExp> &rhs) = delete;
 
-  result_type operator()(const unary_op<kleene> &unary) const;
-};
-
-void print_expression(const RegExp &expr);
-
-}  // namespace regular_expressions
+}
+*/
 #endif  // INCLUDE_REGULAR_EXPRESSIONS_H_
+

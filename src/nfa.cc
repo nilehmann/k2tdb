@@ -56,7 +56,7 @@ struct RegExp2NFA: public boost::static_visitor<tuple<uint, uint, uint>> {
     graph->emplace_back();
     end = graph->size() - 1;
 
-    for (auto expr : multy.children) {
+    for (auto &expr : multy.children) {
       auto res = boost::apply_visitor(*this, expr);
       graph->at(start).emplace_back(res.get<0>(), EPS);
       graph->at(res.get<1>()).emplace_back(end, res.get<2>());
