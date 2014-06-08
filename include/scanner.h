@@ -10,6 +10,7 @@
 #include <FlexLexer.h>
 #include <sstream>
 #include <parser.h>
+#include <driver.h>
 
 typedef parser::Parser Parser;
 
@@ -20,7 +21,9 @@ class Scanner: public FLEX_BASE_CLASS_NAME(RegExp) {
   Scanner(std::istream *arg_yyin = 0, std::ostream *arg_yyout = 0)
     : FLEX_BASE_CLASS_NAME(RegExp)(arg_yyin, arg_yyout), str_buff() {}
 
-  int yylex(Parser::semantic_type *yylval, Parser::location_type *yyloc);
+  int yylex(Parser::semantic_type *yylval,
+            Parser::location_type *yyloc,
+            Driver &driver);
 
   /*
   int yylex(Parser::sematic_type yylval,
@@ -52,4 +55,5 @@ class Scanner: public FLEX_BASE_CLASS_NAME(RegExp) {
     int,                                \
     (Parser::semantic_type *, yylval)   \
     (Parser::location_type *, yyloc)    \
+    (Driver &, driver)                  \
 )

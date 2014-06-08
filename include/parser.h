@@ -40,7 +40,7 @@
 #ifndef YY_YY_INCLUDE_PARSER_H_INCLUDED
 # define YY_YY_INCLUDE_PARSER_H_INCLUDED
 // //                    "%code requires" blocks.
-#line 53 "parsing/parser.yy" // lalr1.cc:372
+#line 54 "parsing/parser.yy" // lalr1.cc:372
 
   #include <regular_expressions.h>
   #include <memory>
@@ -50,9 +50,8 @@
   typedef re::multy_op<re::alternation> alternation;
   typedef re::unary_op<re::kleene> kleene;
   using re::RegExp;
-  using std::make_shared;
 
-#line 56 "include/parser.h" // lalr1.cc:372
+#line 55 "include/parser.h" // lalr1.cc:372
 
 
 # include <vector>
@@ -128,7 +127,7 @@
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 namespace parser {
-#line 132 "include/parser.h" // lalr1.cc:372
+#line 131 "include/parser.h" // lalr1.cc:372
 
 
 
@@ -275,16 +274,21 @@ namespace parser {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // reg_exp
+      // kleene
+      // atom
+      char dummy1[sizeof(RegExp)];
+
+      // alternation
+      char dummy2[sizeof(alternation)];
+
+      // concat
+      char dummy3[sizeof(concat)];
+
       // "str_literal"
       // "id"
       // val
-      char dummy1[sizeof(int)];
-
-      // reg_exp
-      // concat
-      // kleene
-      // atom
-      char dummy2[sizeof(std::shared_ptr<RegExp>)];
+      char dummy4[sizeof(int)];
 };
 
     /// Symbol semantic values.
@@ -354,9 +358,13 @@ namespace parser {
 
   basic_symbol (typename Base::kind_type t, const location_type& l);
 
-  basic_symbol (typename Base::kind_type t, const int v, const location_type& l);
+  basic_symbol (typename Base::kind_type t, const RegExp v, const location_type& l);
 
-  basic_symbol (typename Base::kind_type t, const std::shared_ptr<RegExp> v, const location_type& l);
+  basic_symbol (typename Base::kind_type t, const alternation v, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const concat v, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const int v, const location_type& l);
 
 
       /// Constructor for symbols with semantic value.
@@ -553,7 +561,7 @@ namespace parser {
   // number is the opposite.  If YYTABLE_NINF, syntax error.
   static const unsigned char yytable_[];
 
-  static const unsigned char yycheck_[];
+  static const signed char yycheck_[];
 
   // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
   // symbol of state STATE-NUM.
@@ -668,8 +676,8 @@ namespace parser {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 28,     ///< Last index in yytable_.
-      yynnts_ = 10,  ///< Number of nonterminal symbols.
+      yylast_ = 31,     ///< Last index in yytable_.
+      yynnts_ = 11,  ///< Number of nonterminal symbols.
       yyempty_ = -2,
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
@@ -685,7 +693,7 @@ namespace parser {
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 } // parser
-#line 689 "include/parser.h" // lalr1.cc:372
+#line 697 "include/parser.h" // lalr1.cc:372
 
 
 

@@ -21,8 +21,8 @@ namespace regular_expressions {
 
 template<typename OpTag> struct multy_op;
 template<typename OpTag> struct unary_op;
-struct concat;
-struct alternation;
+struct concat {static const int tag = 1;};
+struct alternation {static const int tag = 2;};
 struct kleene;
 struct converse;
 
@@ -34,19 +34,26 @@ typedef boost::variant<
         > RegExp;
 
 void print_expression(const RegExp &expr);
-void push_expr(RegExp &expr, RegExp &&val);
 
 
 
 template<typename OpTag>
 struct multy_op {
+  multy_op() {}
   multy_op(RegExp &&exp) noexcept{
     children.push_back(std::move(exp));
   }
   multy_op(multy_op &&rhs) noexcept: children() {
     children.swap(rhs.children);
   }
-  multy_op(const multy_op &rhs) = delete;
+  multy_op &operator=(multy_op &&rhs) {
+    children.swap(rhs.children);
+    return *this;
+  }
+  multy_op(const multy_op &rhs): children(rhs.children) {}
+  void push(RegExp &&expr) {
+    children.push_back(std::move(expr));
+  }
   std::vector<RegExp> children;
 };
 
@@ -54,7 +61,11 @@ template<typename OpTag>
 struct unary_op {
   unary_op(RegExp &&e) noexcept: expr(std::move(e)) {}
   unary_op(unary_op &&rhs) noexcept: expr(std::move(rhs.expr)) {}
-  unary_op(const unary_op &rhs) = delete;
+  unary_op &operator=(unary_op &&rhs) {
+    std::swap(expr, rhs.expr);
+    return *this;
+  }
+  unary_op(const unary_op &rhs): expr(rhs.expr) {}
   RegExp expr;
 };
 

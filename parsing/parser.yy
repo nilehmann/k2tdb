@@ -42,6 +42,7 @@
  * provides a simple but effective pure interface, not relying on global
  * variables. */
 %parse-param { class Driver& driver }
+%lex-param { class Driver& driver}
 
 
 /* verbose error messages */
@@ -52,18 +53,18 @@
 
 %code requires {
   #include <regular_expressions.h>
-  #include <memory>
   
   namespace re = regular_expressions;
   typedef re::multy_op<re::concat> concat;
   typedef re::multy_op<re::alternation> alternation;
   typedef re::unary_op<re::kleene> kleene;
   using re::RegExp;
-  using std::make_shared;
 }
 %define api.value.type variant
 
-%type <std::shared_ptr<RegExp>> reg_exp concat kleene atom
+%type <RegExp> reg_exp kleene atom
+%type <concat> concat
+%type <alternation> alternation
 
 %type <int> val
 %token <int> STR_LITERAL "str_literal"	
@@ -94,37 +95,39 @@
    * current lexer object of the driver context. */
   #undef yylex
   #define yylex driver.lexer->yylex
+
+  using boost::get;
 }
 
 %% /*** Grammar Rules ***/
 
- /*** BEGIN EXAMPLE - Change the example grammar rules below ***/
 
-assignment: ID "=" STR_LITERAL 
+assignment: ID "=" STR_LITERAL {driver.sym_table.SetSymbol($1, $3);}
 
+reg_exp: alternation {$$ = std::move($1);}
 
-reg_exp:
-  concat             {$$ = make_shared<RegExp>(alternation(std::move(*$1))); }
-| reg_exp "|" concat {re::push_expr(*$1, std::move(*$3)); $$ = $1;}
+alternation:
+  concat                  {$$ = alternation(std::move($1)); }
+| alternation "|" concat  {$1.push(std::move($3)); $$ = std::move($1);}
 
 concat:
-  kleene             {$$ = make_shared<RegExp>(concat(std::move(*$1))); }
-| concat "." kleene  {push_expr(*$1, std::move(*$3)); $$ = $1;}
-| concat kleene      {push_expr(*$1, std::move(*$2)); $$ = $1;}
+  kleene             {$$ = concat(std::move($1)); }
+| concat "." kleene  {$1.push(std::move($3)); $$ = std::move($1);}
+| concat kleene      {$1.push(std::move($2)); $$ = std::move($1);}
 
 kleene:
-  atom               {$$ = $1;}
-| atom "*"           {$$ = make_shared<RegExp>(kleene(std::move(*$1)));}
+  atom               {std::swap($$, $1);}
+| atom "*"           {$$ = kleene(std::move($1));}
 
 atom:
-  val                {$$ = make_shared<RegExp>($1);}
-| "(" reg_exp ")"    {$$ = $2;}
+  val                {$$ = $1;}
+| "(" reg_exp ")"    {std::swap($$, $2);}
 
 val: 
   STR_LITERAL {$$ = $1;}
-| ID          {$$ = $1;}
+| ID          {$$ = driver.sym_table.LookupSymbol($1);}
 
-query: "<" val ">" "[" reg_exp "]" {re::print_expression(*$5);}
+query: "<" val ">" "[" reg_exp "]" {re::print_expression($5);}
 
 command: 
   assignment ';'
@@ -133,7 +136,6 @@ command:
 start	: /* empty */
 	| start command
 
- /*** END EXAMPLE - Change the example grammar rules above ***/
 
 %% /*** Additional Code ***/
 

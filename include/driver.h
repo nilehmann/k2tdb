@@ -16,9 +16,10 @@
 #include <sstream>
 #include <fstream>
 #include <location.h>
+#include <symbol_table.h>
+#include <string_table.h>
 
 // forward declaration
-//class CalcContext;
 class Scanner;
 
 
@@ -82,6 +83,9 @@ public:
   /** Pointer to the current lexer instance, this is used to connect the
    * parser to the scanner. It is used in the yylex macro. */
   Scanner *lexer;
+
+  SymbolTable sym_table;
+  StringTable str_table;
 };
 
 #endif  // INCLUDE_DRIVER_H_

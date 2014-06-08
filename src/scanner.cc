@@ -495,7 +495,7 @@ static yyconst flex_int16_t yy_chk[52] =
 static yyconst flex_int16_t yy_rule_linenum[20] =
     {   0,
        71,   77,   80,   84,   89,   90,   91,   92,   93,   94,
-       95,   96,   97,   98,  100,  103,  104,  106,  107
+       95,   96,   97,   98,  100,  106,  107,  109,  110
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -828,7 +828,7 @@ YY_RULE_SETUP
 #line 71 "parsing/scanner.ll"
 {
   BEGIN(INITIAL);
-  yylval->build(1);
+  yylval->build(driver.str_table.AddString(str_buff.str()));
   return token::STR_LITERAL;
 }
 	YY_BREAK
@@ -908,35 +908,38 @@ return token::NODE_RIGHT;
 case 15:
 YY_RULE_SETUP
 #line 100 "parsing/scanner.ll"
-{yylval->build(1); return token::ID;}
+{
+  yylval->build(driver.str_table.AddString(yytext));
+  return token::ID;
+}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 103 "parsing/scanner.ll"
+#line 106 "parsing/scanner.ll"
 
 	YY_BREAK
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 104 "parsing/scanner.ll"
+#line 107 "parsing/scanner.ll"
 
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 106 "parsing/scanner.ll"
+#line 109 "parsing/scanner.ll"
 return static_cast<token_type>(*yytext);
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 107 "parsing/scanner.ll"
+#line 110 "parsing/scanner.ll"
 printf("[error]");
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 110 "parsing/scanner.ll"
+#line 113 "parsing/scanner.ll"
 ECHO;
 	YY_BREAK
-#line 940 "src/scanner.cc"
+#line 943 "src/scanner.cc"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(str_literal):
 	yyterminate();
@@ -1977,7 +1980,7 @@ void RegExpfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 110 "parsing/scanner.ll"
+#line 113 "parsing/scanner.ll"
 
 
 

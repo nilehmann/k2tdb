@@ -12,7 +12,10 @@
 
 Driver::Driver()
     : trace_scanning(false),
-      trace_parsing(false) {}
+      trace_parsing(false),
+      lexer(),
+      sym_table(),
+      str_table() {}
 
 bool Driver::parse_stream(std::istream& in,
       const std::string& sname) {

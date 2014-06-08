@@ -17,20 +17,20 @@
 typedef unsigned int uint;
 class SymbolTable {
  public:
-  void SetSymbol(const std::string &symbol, uint val) {
+  void SetSymbol(uint symbol, uint val) {
     map[symbol] = val;
   }
 
-  uint GetValue(const std::string &symbol) {
+  uint LookupSymbol(uint symbol) {
     return map.at(symbol);
   }
 
-  bool Contains(const std::string &symbol) {
+  bool Contains(uint symbol) {
     return map.count(symbol);
   }
 
  private:
-  std::unordered_map<std::string, uint> map;
+  std::unordered_map<uint, uint> map;
   
 };
 #endif  // INCLUDE_SYMBOL_TABLE_H_

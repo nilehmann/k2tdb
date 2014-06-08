@@ -43,31 +43,8 @@ class print: public boost::static_visitor<void> {
   }
 };
 
-
 void print_expression(const RegExp &expr) {
   boost::apply_visitor(print(), expr);
   std::cout << std::endl;
 }
-
-class Push: public boost::static_visitor<void> {
- public:
-  RegExp &&expr;
-  Push(RegExp &&e): expr(std::move(e)) {}
-
-  result_type operator()(uint) const {}
-
-  template<typename Op>
-  result_type operator()(multy_op<Op> &multy) const {
-    multy.children.push_back(std::move(expr));
-  }
-
-  template<typename Op>
-  result_type operator()(unary_op<Op> &unary) const {
-    unary.expr = std::move(expr);
-  }
-};
-void push_expr(RegExp &expr, RegExp &&val) {
-  boost::apply_visitor(Push(std::move(val)), expr);  
-}
-
 }

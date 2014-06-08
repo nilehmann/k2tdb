@@ -13,8 +13,8 @@ SRC = $(shell find src/ -name *.cc)
 OBJ = $(SRC:%.cc=obj/%.o)
 
 
-FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG -Wno-deprecated-register -ftemplate-backtrace-limit=0 
-//FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic -Wno-deprecated-register
+//FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG -Wno-deprecated-register -ftemplate-backtrace-limit=0 
+FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic -Wno-deprecated-register
 LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs -lcds -lboost_filesystem\
             -lboost_system -lk2tree\
 						-ldacs -lboost_program_options
