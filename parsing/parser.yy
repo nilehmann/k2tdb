@@ -52,12 +52,12 @@
 
 
 %code requires {
-  #include <regular_expressions.h>
+  #include <regexp.h>
   
-  namespace re = regular_expressions;
-  typedef re::multy_op<re::concat> concat;
-  typedef re::multy_op<re::alternation> alternation;
-  typedef re::unary_op<re::kleene> kleene;
+  namespace re = regexp;
+  using re::concat;
+  using re::alternation;
+  using re::kleene;
   using re::RegExp;
 }
 %define api.value.type variant
@@ -96,7 +96,6 @@
   #undef yylex
   #define yylex driver.lexer->yylex
 
-  using boost::get;
 }
 
 %% /*** Grammar Rules ***/
@@ -104,30 +103,36 @@
 
 assignment: ID "=" STR_LITERAL {driver.sym_table.SetSymbol($1, $3);}
 
+/* type: regexp */
 reg_exp: alternation {$$ = std::move($1);}
 
+/* type: alternation */
 alternation:
-  concat                  {$$ = alternation(std::move($1)); }
-| alternation "|" concat  {$1.push(std::move($3)); $$ = std::move($1);}
+  concat                  {$$.push_expr(std::move($1)); }
+| alternation "|" concat  {std::swap($$, $1); $$.push_expr(std::move($3)); }
 
+/* type: concat */
 concat:
-  kleene             {$$ = concat(std::move($1)); }
-| concat "." kleene  {$1.push(std::move($3)); $$ = std::move($1);}
-| concat kleene      {$1.push(std::move($2)); $$ = std::move($1);}
+  kleene             {$$.push_expr(std::move($1)); }
+| concat "." kleene  {std::swap($$, $1), $$.push_expr(std::move($3)); }
+| concat kleene      {std::swap($$, $1), $$.push_expr(std::move($2)); }
 
+/* type: regexp */
 kleene:
   atom               {std::swap($$, $1);}
 | atom "*"           {$$ = kleene(std::move($1));}
 
+/* type: regexp */
 atom:
   val                {$$ = $1;}
 | "(" reg_exp ")"    {std::swap($$, $2);}
 
+/* type: int */
 val: 
   STR_LITERAL {$$ = $1;}
 | ID          {$$ = driver.sym_table.LookupSymbol($1);}
 
-query: "<" val ">" "[" reg_exp "]" {re::print_expression($5);}
+query: "<" val ">" "[" reg_exp "]" {driver.query($2, $5);}
 
 command: 
   assignment ';'

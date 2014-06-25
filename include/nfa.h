@@ -10,14 +10,16 @@
 #ifndef INCLUDE_NFA_H_
 #define INCLUDE_NFA_H_
 #include <graph_queries_basic.h>
-#include <regular_expressions.h>
-#include <boost/tuple/tuple.hpp>
+#include <regexp.h>
 #include <vector>
 #include <memory>
+#include <boost/tuple/tuple.hpp>
 
 namespace NFA {
-namespace re = regular_expressions;
+namespace re = regexp;
+
 using boost::tuple;
+
 
 typedef std::vector<tuple<uint, uint>> Neighbors;
 typedef std::vector<Neighbors> Graph;
@@ -29,10 +31,19 @@ class NFA {
   NFA(const re::RegExp &regexp);
 
   const Neighbors& neighbors(uint q) const {
-    return graph_->at(q);
+    return graph_[q];
   }
+
+  uint StartState() const {
+    return start_;
+  }
+
+  bool IsAcceptState(uint q) const {
+    return accept_ == q;
+  }
+
  private:
-  std::shared_ptr<Graph> graph_;
+  Graph graph_;
   uint start_;
   uint accept_;
 };

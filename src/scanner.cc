@@ -526,7 +526,7 @@ static yyconst flex_int16_t yy_rule_linenum[20] =
 
 typedef parser::Parser::token token;
 typedef parser::Parser::token_type token_type;
-namespace re = regular_expressions;
+namespace re = regexp;
 
 /* This disables inclusion of unistd.h, which is not available under Visual C++
  * on Win32. The C++ scanner uses STL streams instead. */

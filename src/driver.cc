@@ -9,6 +9,8 @@
 
 #include <driver.h>
 #include <scanner.h>
+#include <dictionary_encoding.h>
+#include <nfa.h>
 
 Driver::Driver()
     : trace_scanning(false),
@@ -16,6 +18,12 @@ Driver::Driver()
       lexer(),
       sym_table(),
       str_table() {}
+
+void Driver::query(uint node, regexp::RegExp &expr) {
+  encode(expr, str_table);
+  NFA::NFA nfa(expr);
+  regexp::print_expression(expr);
+}
 
 bool Driver::parse_stream(std::istream& in,
       const std::string& sname) {

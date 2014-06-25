@@ -42,16 +42,15 @@
 // //                    "%code requires" blocks.
 #line 54 "parsing/parser.yy" // lalr1.cc:372
 
-  #include <regular_expressions.h>
-  #include <memory>
+  #include <regexp.h>
   
-  namespace re = regular_expressions;
-  typedef re::multy_op<re::concat> concat;
-  typedef re::multy_op<re::alternation> alternation;
-  typedef re::unary_op<re::kleene> kleene;
+  namespace re = regexp;
+  using re::concat;
+  using re::alternation;
+  using re::kleene;
   using re::RegExp;
 
-#line 55 "include/parser.h" // lalr1.cc:372
+#line 54 "include/parser.h" // lalr1.cc:372
 
 
 # include <vector>
@@ -127,7 +126,7 @@
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 namespace parser {
-#line 131 "include/parser.h" // lalr1.cc:372
+#line 130 "include/parser.h" // lalr1.cc:372
 
 
 
@@ -693,7 +692,7 @@ namespace parser {
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 } // parser
-#line 697 "include/parser.h" // lalr1.cc:372
+#line 696 "include/parser.h" // lalr1.cc:372
 
 
 

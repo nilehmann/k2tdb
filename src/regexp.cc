@@ -7,10 +7,10 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <regular_expressions.h>
+#include <regexp.h>
 #include <iostream>
 
-namespace regular_expressions {
+namespace regexp {
 
 
 class print: public boost::static_visitor<void> {
@@ -19,12 +19,12 @@ class print: public boost::static_visitor<void> {
     printf("%u", value);
   }
 
-  result_type operator()(const multy_op<concat> &op) const {
+  result_type operator()(const concat &op) const {
     for (auto &expr : op.children)
       boost::apply_visitor(*this, expr);
   }
 
-  result_type operator()(const multy_op<alternation> &op) const {
+  result_type operator()(const alternation &op) const {
     printf("(");
     auto expr = op.children.begin();
     boost::apply_visitor(*this, *expr);
@@ -36,7 +36,7 @@ class print: public boost::static_visitor<void> {
     printf(")");
   }
 
-  result_type operator()(const unary_op<kleene> &unary) const {
+  result_type operator()(const kleene &unary) const {
     printf("(");
     boost::apply_visitor(*this, unary.expr);
     printf(")*");

@@ -12,19 +12,37 @@ TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o)
 SRC = $(shell find src/ -name *.cc)
 OBJ = $(SRC:%.cc=obj/%.o)
 
+EXE = $(shell find exe/ -name *.cc -exec basename {} \;)
+EXE_OBJ = $(EXE:%.cc=obj/exe/%.o)
+BIN = $(EXE:%.cc=bin/%)
+
 
 //FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG -Wno-deprecated-register -ftemplate-backtrace-limit=0 
 FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic -Wno-deprecated-register
-LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs -lcds -lboost_filesystem\
-            -lboost_system -lk2tree\
-						-ldacs -lboost_program_options
+LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs\
+						-lcds\
+						-lk2tree\
+						-ldacs\
+            -lboost_system \
+						-lboost_filesystem\
+						-lboost_program_options\
+						-lkyotocabinet
 
 
-.PHONY: clean style test all
+.PHONY: clean style test all bin
 
-all: bison flex $(OBJ) test 
+all: bison flex $(OBJ) test bin
 
-bison: parsing/parser.yy
+bin: $(BIN)
+
+# EXE
+bin/%: obj/exe/%.o $(OBJ)
+	@echo " [LNK] Linking $@"
+	@$(CXX)  $< $(OBJ) $(LIBRARIES) -o $@
+# END EXE
+
+bison: src/parser.cc
+src/parser.cc: parsing/parser.yy
 	@echo " [GEN] Generating Bison files"
 	@bison -o src/parser.cc --defines=include/parser.h parsing/parser.yy
 	@mv src/location.hh include/location.h
@@ -33,7 +51,8 @@ bison: parsing/parser.yy
 	@sed -i -r 's/"(stack|location|position).hh"/<\1.h>/g'\
 				include/parser.h include/position.h include/stack.h include/location.h
 
-flex: parsing/scanner.ll
+flex: src/scanner.cc
+src/scanner.cc: parsing/scanner.ll
 	@echo " [GEN] Generating scanner.cc"
 	@flex -o src/scanner.cc parsing/scanner.ll
 
@@ -42,12 +61,8 @@ test: bin/test
 
 bin/test: $(TESTS_OBJ) $(OBJ)
 	@echo " [LNK] Linking test"
-	@$(CXX) -isystem $(GTEST)/include $(TESTS_OBJ) -lpthread $(OBJ) $(LIBRARIES)\
+	@$(CXX) $(TESTS_OBJ) -lpthread $(OBJ) $(LIBRARIES)\
 					-lgtest -o bin/test
-
-obj/tests/%.o: tests/%.cc
-	@echo " [C++] Compiling $<"
-	@$(CXX) -isystem $(GTEST)/include $(INCLUDE) $(FLAGS) -c $< -o $@
 # END TEST
 
 
@@ -59,14 +74,18 @@ style:
 # END STYLE
 
 # SRC
-obj/src/%.o: src/%.cc
+obj/%.o: %.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 # END SRC
 
 
 # CLEAN
-clean : clean_regular clean_test
+clean : clean_regular clean_test clean_exe
+
+clean_exe:
+	@echo " [CLN] Cleaning executables"
+	@rm bin/*
 
 clean_test:
 	@echo " [CLN] Cleaning test"

@@ -11,89 +11,57 @@
 #include <algorithm>
 
 namespace NFA {
-using boost::make_tuple;
 
-struct RegExp2NFA: public boost::static_visitor<tuple<uint, uint, uint>> {
-  std::shared_ptr<Graph> graph;
+struct RegExp2NFA: public boost::static_visitor<uint> {
+  Graph *graph_;
+  uint end_;
 
-  RegExp2NFA(): graph(new Graph()) {}
+  RegExp2NFA(Graph *g, uint e)
+      : graph_(g),
+        end_(e) {}
 
   result_type operator()(uint symbol) const {
-    graph->emplace_back();
-    uint node = graph->size() - 1;
-    return make_tuple(node, node, symbol);
+    graph_->emplace_back();
+    uint start = graph_->size() - 1;
+    graph_->at(start).emplace_back(end_, symbol);
+    return start;
   }
-  result_type operator()(const re::multy_op<re::concat> &multy) const {
-    uint start, end, symbol;
-    result_type prev, curr;
-
-    prev = boost::apply_visitor(*this, multy.children[0]);
-    start = prev.get<0>();
-
-    for (uint i = 1; i < multy.children.size(); ++i) {
-      curr = boost::apply_visitor(*this, multy.children[i]);
-
-      uint from = prev.get<1>();
-      uint symbol = prev.get<2>();
-      uint to = curr.get<0>();
-
-      graph->at(from).emplace_back(to, symbol);
-      
-      std::swap(prev, curr);
+  result_type operator()(const re::concat &multy) const {
+    uint end = end_;
+    for (int i = multy.children.size() - 1; i >= 0; --i){
+      auto &expr = multy.children[i];
+      uint start = boost::apply_visitor(RegExp2NFA(graph_, end), expr);
+      end = start;
     }
-
-    end = prev.get<1>();
-    symbol = prev.get<2>();
-
-    return make_tuple(start, end, symbol);
+    return end;
   }
 
-  result_type operator()(const re::multy_op<re::alternation> &multy) const {
-    uint start, end;
-
-    graph->emplace_back();
-    start = graph->size() - 1;
-    graph->emplace_back();
-    end = graph->size() - 1;
-
+  result_type operator()(const re::alternation &multy) const {
+    graph_->emplace_back();
+    uint start = graph_->size() - 1;
     for (auto &expr : multy.children) {
-      auto res = boost::apply_visitor(*this, expr);
-      graph->at(start).emplace_back(res.get<0>(), EPS);
-      graph->at(res.get<1>()).emplace_back(end, res.get<2>());
+      uint start2 = boost::apply_visitor(RegExp2NFA(graph_, end_), expr);
+      graph_->at(start).emplace_back(start2, EPS);
     }
-
-    return make_tuple(start, end, EPS);
+    return start;
   }
-  result_type operator()(const re::unary_op<re::kleene> &unary) const {
-    uint node;
-    graph->emplace_back();
-    node = graph->size() - 1;
+  result_type operator()(const re::kleene &unary) const {
+    graph_->emplace_back();
+    uint start = graph_->size() - 1;
+    uint start2 = boost::apply_visitor(RegExp2NFA(graph_, start), unary.expr);
 
-    auto res = boost::apply_visitor(*this, unary.expr);
+    graph_->at(start).emplace_back(start2, EPS);
+    graph_->at(start).emplace_back(end_, EPS);
 
-    graph->at(node).emplace_back(res.get<0>(), EPS);
-    graph->at(res.get<1>()).emplace_back(node, res.get<2>());
-
-    return make_tuple(node, node, EPS);
+    return start;
   }
 };
 
-NFA::NFA(const re::RegExp &regexp) {
-  RegExp2NFA visitor;
+NFA::NFA(const re::RegExp &regexp): graph_(), start_(), accept_() {
+  accept_ = 0;
+  graph_.emplace_back();
 
-  auto res = boost::apply_visitor(visitor, regexp);
-
-  graph_ = visitor.graph;
-  start_ = res.get<0>();
-
-  uint symbol = res.get<2>();
-  if (symbol != EPS) {
-    graph_->emplace_back();
-    accept_ = graph_->size() - 1;
-    graph_->at(res.get<1>()).emplace_back(accept_, symbol);
-  } else {
-    accept_ = res.get<1>();
-  }
+  start_ = boost::apply_visitor(RegExp2NFA(&graph_, accept_), regexp);
 }
 
 

@@ -18,6 +18,7 @@
 #include <location.h>
 #include <symbol_table.h>
 #include <string_table.h>
+#include <regexp.h>
 
 // forward declaration
 class Scanner;
@@ -66,6 +67,8 @@ public:
    * @return		true if successfully parsed
    */
   bool parse_file(const std::string& filename);
+
+  void query(uint node, regexp::RegExp &expr);
 
   // To demonstrate pure handling of parse errors, instead of
   // simply dumping them on the standard error output, we will pass
