@@ -11,17 +11,21 @@
 #include <scanner.h>
 #include <dictionary_encoding.h>
 #include <nfa.h>
+#include <queries.h>
 
-Driver::Driver()
+Driver::Driver(std::ifstream *db_in)
     : trace_scanning(false),
       trace_parsing(false),
       lexer(),
       sym_table(),
-      str_table() {}
+      str_table(),
+      db_(db_in) {}
 
 void Driver::query(uint node, regexp::RegExp &expr) {
   encode(expr, str_table);
   NFA::NFA nfa(expr);
+  node = !node;
+  //compute(node, nfa, db_);
   regexp::print_expression(expr);
 }
 

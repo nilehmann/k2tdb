@@ -13,5 +13,5 @@
 #include <nfa.h>
 #include <graph.h>
 
-void compute(uint node, regexp::RegExp &expr, Graph &graph);
+void compute(uint node, NFA::NFA &nfa, GraphDB &graph);
 #endif  // INCLUDE_QUERIES_H_

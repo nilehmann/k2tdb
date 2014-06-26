@@ -1,0 +1,5 @@
+# started 2013-07-10t03:11:48z
+<http://test/ELP> <http://test/estilo> <http://test/RockProgresivo> .
+<http://test/KeithEmerson> <http://test/integrante> <http://test/ELP> .
+<http://test/KeithEmerson> <http://test/integrante> <http://test/TheNice> .
+<http://test/TheNice> <http://test/estilo> <http://test/RockProgresivo> .

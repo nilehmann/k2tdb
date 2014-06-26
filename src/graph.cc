@@ -12,7 +12,7 @@
 
 namespace utils = libk2tree::utils;
 
-Graph::Graph(std::ifstream *in): k2trees() {
+GraphDB::GraphDB(std::ifstream *in): k2trees() {
   uint s = utils::LoadValue<uint>(in);
   k2trees.reserve(s);
   for (uint i = 0; i < s; ++i)

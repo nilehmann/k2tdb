@@ -15,9 +15,9 @@
 #include <vector>
 
 #include <compressed_hybrid.h>
-class Graph {
+class GraphDB {
  public:
-  Graph(std::ifstream *in);
+  GraphDB(std::ifstream *in);
 
   template<typename Function>
   void AdjacencyList(uint p, uint d, Function fun) {

@@ -10,6 +10,7 @@
 #ifndef INCLUDE_DRIVER_H_
 #define INCLUDE_DRIVER_H_
 
+#include <graph.h>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -33,7 +34,7 @@ class Scanner;
 class Driver {
 public:
   /// construct a new parser driver context
-  Driver();
+  Driver(std::ifstream *db_in);
   /// enable debug output in the flex scanner
   bool trace_scanning;
 
@@ -89,6 +90,8 @@ public:
 
   SymbolTable sym_table;
   StringTable str_table;
+
+  GraphDB db_;
 };
 
 #endif  // INCLUDE_DRIVER_H_

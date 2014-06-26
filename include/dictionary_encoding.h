@@ -20,11 +20,13 @@
 
 class DictionaryEncoding {
  public:
-  DictionaryEncoding(const boost::filesystem::path &base_file);
+  DictionaryEncoding(const boost::filesystem::path &base_file,
+                     bool trunc = false);
   bool Check(const std::string &s) {return db_.check(s);}
   bool Add(const std::string &s);
   bool String2Int(const std::string &key, uint *val);
   std::string Int2String(uint key);
+  uint Count();
   ~DictionaryEncoding();
  private:
   kyotocabinet::HashDB db_;

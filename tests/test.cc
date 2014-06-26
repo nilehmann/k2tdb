@@ -7,39 +7,9 @@
  * ----------------------------------------------------------------------------
  */
 
-//#include <cli.h>
-//#include <boost/spirit/include/qi_parse.hpp>
-//#include <iostream>
-
-#include <driver.h>
-#include <scanner.h>
-
 
 
 int main() {
-  Driver d;
-  d.parse_stdio();
-
-
-
-  /*
-    using boost::spirit::ascii::space;
-
-    commands::command_parser grammar;
-    std::string str;
-    std::cout << "> ";
-    while (getline(std::cin, str))
-    {
-        if (str.empty() || str[0] == 'q' || str[0] == 'Q')
-            break;
-
-        std::string::const_iterator iter = str.begin();
-        std::string::const_iterator end = str.end();
-        phrase_parse(iter, end, grammar, space);
-        std::cout << std::endl << "> ";
-    }
-    return 0;
-    */
   return 0;
 
 }

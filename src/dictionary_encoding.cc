@@ -41,22 +41,29 @@ void encode(regexp::RegExp &expr, const StringTable &str_table) {
 
 
 
-DictionaryEncoding::DictionaryEncoding(const path &base_file)
+DictionaryEncoding::DictionaryEncoding(const path &base_file,
+                                       bool trunc)
     : db_(),
-      array_(base_file.native() + ".arr", 201){
-  db_.open(base_file.native() + ".kch", HashDB::OWRITER | HashDB::OCREATE);
+      array_(base_file.native() + ".arr", 201, trunc){
+  int opts = HashDB::OWRITER | HashDB::OCREATE;
+  if (trunc)
+    opts |= HashDB::OTRUNCATE;
+  db_.open(base_file.native() + ".kch", opts);
 }
 
 bool DictionaryEncoding::Add(const std::string &s) {
-  if (db_.check(s))
+  if (db_.check(s) != -1)
     return false;
-  uint size = array_.PushBack(s);
-  db_.add(s.data(), s.size(), reinterpret_cast<char*>(&size), sizeof(uint));
+  uint pos = array_.PushBack(s) - 1;
+  db_.add(s.data(), s.size(), reinterpret_cast<char*>(&pos), sizeof(uint));
   return true;
 }
 bool DictionaryEncoding::String2Int(const std::string &key, uint *val) {
   return db_.get(key.data(), key.size(),
                  reinterpret_cast<char*>(val), sizeof(uint)) != -1;
+}
+uint DictionaryEncoding::Count() {
+  return db_.count();
 }
 
 std::string DictionaryEncoding::Int2String(uint key) {

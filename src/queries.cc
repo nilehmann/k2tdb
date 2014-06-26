@@ -26,7 +26,7 @@ struct hash<boost::tuple<A, B>> {
 };
 }
 
-void compute(uint node, NFA::NFA &nfa, Graph &graph) {
+void compute(uint node, NFA::NFA &nfa, GraphDB &graph) {
   using boost::tuple;
   using boost::make_tuple;
 
