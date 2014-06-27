@@ -8,6 +8,7 @@
  */
 
 #include <driver.h>
+#include <graph.h>
 
 #include <boost/program_options/positional_options.hpp>
 #include <boost/program_options/options_description.hpp>
@@ -16,7 +17,7 @@
 
 
 namespace po = boost::program_options;
-std::ifstream db_in;
+std::string db_name;
 
 
 void ParseOps(int argc, char *argv[]) {
@@ -46,10 +47,11 @@ void ParseOps(int argc, char *argv[]) {
     exit(0);
   }
 
-  db_in.open(map["input"].as<std::string>());
+  db_name = map["input"].as<std::string>();
 }
 int main(int argc, char *argv[]) {
   ParseOps(argc, argv);
-  Driver d(&db_in);
+  GraphDB db(db_name);
+  Driver d(db);
   d.parse_stdio();
 }

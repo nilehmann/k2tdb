@@ -1,0 +1,4 @@
+elp = "http://test/ELP";
+estilo = "http://test/estilo";
+
+<elp> [estilo];

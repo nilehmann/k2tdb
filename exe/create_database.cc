@@ -23,7 +23,7 @@
 namespace po = boost::program_options;
 namespace lk2 = libk2tree;
 
-std::string in_base, out_file;
+std::string base_name;
 int k1, k2, kl, k1_levels;
 
 void ParseOps(int argc, char *argv[]) {
@@ -40,15 +40,13 @@ void ParseOps(int argc, char *argv[]) {
 
   po::options_description files;
   files.add_options()
-    ("input", po::value<std::string>(), "Input basename")
-    ("output-file", po::value<std::string>(), "Output File Name");
+    ("base_name", po::value<std::string>(), "Basename");
 
   po::options_description all("All options");
   all.add(ops).add(files);
 
   po::positional_options_description p;
-  p.add("input", 1);
-  p.add("output-file", 1);
+  p.add("base_name", 1);
 
   po::variables_map map;
   po::store(po::command_line_parser(argc, argv).
@@ -62,22 +60,21 @@ void ParseOps(int argc, char *argv[]) {
   if (kl == -1)
     kl = k2*k2*k2;
 
-  in_base = map["input"].as<std::string>();
-  out_file = map["output-file"].as<std::string>();
+  base_name = map["base_name"].as<std::string>();
 }
 
 int main(int argc, char *argv[]) {
   ParseOps(argc, argv);
-  std::ifstream in_triples(in_base + ".triples",
+  std::ifstream in_triples(base_name + ".triples",
                            std::ios::in | std::ios::binary);
-  DictionaryEncoding SO(in_base + ".so", false);
-  DictionaryEncoding P(in_base + ".p", false);
+  DictionaryEncoding SO(base_name + ".so", false);
+  DictionaryEncoding P(base_name + ".p", false);
 
   in_triples.seekg (0, in_triples.end);
   uint ntriples = in_triples.tellg()/3/sizeof(uint);
   in_triples.seekg (0, in_triples.beg);
 
-  std::ofstream out(out_file);
+  std::ofstream out(base_name + ".k2tdb");
   uint npredicates = P.Count();
   out.write(reinterpret_cast<char*>(&npredicates), sizeof(uint));
   uint curr_predicate = -1;

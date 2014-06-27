@@ -16,7 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <location.h>
+#include <parsing/location.h>
 #include <symbol_table.h>
 #include <string_table.h>
 #include <regexp.h>
@@ -34,7 +34,7 @@ class Scanner;
 class Driver {
 public:
   /// construct a new parser driver context
-  Driver(std::ifstream *db_in);
+  Driver(const GraphDB &db);
   /// enable debug output in the flex scanner
   bool trace_scanning;
 
@@ -91,7 +91,7 @@ public:
   SymbolTable sym_table;
   StringTable str_table;
 
-  GraphDB db_;
+  const GraphDB &db_;
 };
 
 #endif  // INCLUDE_DRIVER_H_

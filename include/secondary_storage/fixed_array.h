@@ -73,15 +73,16 @@ class FixedArray {
     return size_;
   }
 
-  T operator[](size_t pos) {
+  T operator[](size_t pos) const {
     Unserialize unserializer;
     std::unique_ptr<char[]> buff(new char[entry_size_]);
 
-    stream_.seekg(pos*entry_size_);
-    stream_.read(buff.get(), entry_size_);
+    const_cast<std::fstream&>(stream_).seekg(pos*entry_size_);
+    const_cast<std::fstream&>(stream_).read(buff.get(), entry_size_);
 
     return unserializer(buff.get(), entry_size_);
   }
+
  private:
   std::fstream stream_;
   /**

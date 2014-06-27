@@ -24,8 +24,8 @@ class DictionaryEncoding {
                      bool trunc = false);
   bool Check(const std::string &s) {return db_.check(s);}
   bool Add(const std::string &s);
-  bool String2Int(const std::string &key, uint *val);
-  std::string Int2String(uint key);
+  bool String2Int(const std::string &key, uint *val) const;
+  std::string Int2String(uint key) const;
   uint Count();
   ~DictionaryEncoding();
  private:

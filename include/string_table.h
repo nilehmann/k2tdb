@@ -12,6 +12,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 #include <iostream>
 typedef unsigned int uint;
@@ -30,6 +31,9 @@ class StringTable {
     return map.count(s);
   }
 
+  const std::string &GetString(uint index) const {
+    return vec[index];
+  }
   std::string &GetString(uint index) {
     return vec[index];
   }

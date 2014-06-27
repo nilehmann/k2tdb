@@ -8,25 +8,20 @@
  */
 
 #include <driver.h>
-#include <scanner.h>
+#include <parsing/scanner.h>
 #include <dictionary_encoding.h>
 #include <nfa.h>
-#include <queries.h>
 
-Driver::Driver(std::ifstream *db_in)
+Driver::Driver(const GraphDB &db)
     : trace_scanning(false),
       trace_parsing(false),
       lexer(),
       sym_table(),
       str_table(),
-      db_(db_in) {}
+      db_(db) {}
 
 void Driver::query(uint node, regexp::RegExp &expr) {
-  encode(expr, str_table);
-  NFA::NFA nfa(expr);
-  node = !node;
-  //compute(node, nfa, db_);
-  regexp::print_expression(expr);
+  db_.Compute(node, expr, str_table);
 }
 
 bool Driver::parse_stream(std::istream& in,

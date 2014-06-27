@@ -128,9 +128,6 @@ int main(int argc, char *argv[]) {
       P.String2Int(predicate, &ipredicate);
       triples_out.seekp(3*npredicates[ipredicate]*sizeof(uint));
 
-      std::cerr << 3*npredicates[ipredicate]*sizeof(uint) << std::endl;
-      std::cerr << isubject << " " << ipredicate << " " << iobject << std::endl;
-
       ++npredicates[ipredicate];
       triples_out.write(reinterpret_cast<char*>(&isubject), sizeof(uint));
       triples_out.write(reinterpret_cast<char*>(&ipredicate), sizeof(uint));

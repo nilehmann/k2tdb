@@ -88,7 +88,7 @@
 
 %code top {
  #include <driver.h>
- #include <scanner.h>
+ #include <parsing/scanner.h>
 
   /* this "connects" the bison parser in the driver to the flex scanner class
    * object. it defines the yylex() function call to pull the next token from the

@@ -6,14 +6,17 @@ HEADERS = $(shell find include tests -name *.h)
 
 INCLUDE = -Iinclude/ -I$(K2TREE)/include
 
+BISON_SRC = src/parsing/parser.cc
+FLEX_SRC = src/parsing/scanner.cc
+
 TESTS_SRC = $(shell find tests -name *.cc)
 TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
 
-SRC = $(shell find src/ -name *.cc)
-OBJ = $(SRC:%.cc=obj/%.o)
+SRC = $(sort $(shell find src/ -name *.cc) $(BISON_SRC) $(FLEX_SRC))
+OBJ = $(patsubst %.cc,obj/%.o,$(SRC))
 
 EXE = $(shell find exe/ -name *.cc -exec basename {} \;)
-EXE_OBJ = $(EXE:%.cc=obj/exe/%.o)
+EXE_OBJ = $(patsubst %.cc,obj/exe/%.o,$(EXE))
 BIN = $(EXE:%.cc=bin/%)
 
 
@@ -30,8 +33,9 @@ LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs\
 
 
 .PHONY: clean style test all bin
+.SECONDARY:
 
-all: bison flex $(OBJ) test bin
+all: test bin
 
 bin: $(BIN)
 
@@ -41,24 +45,25 @@ bin/%: obj/exe/%.o $(OBJ)
 	@$(CXX)  $< $(OBJ) $(LIBRARIES) -o $@
 # END EXE
 
-bison: src/parser.cc
-src/parser.cc: parsing/parser.yy
+bison: $(BISON_SRC)
+$(BISON_SRC): parsing/parser.yy
 	@echo " [GEN] Generating Bison files"
-	@bison -o src/parser.cc --defines=include/parser.h parsing/parser.yy
-	@mv src/location.hh include/location.h
-	@mv src/position.hh include/position.h
-	@mv src/stack.hh include/stack.h
-	@sed -i -r 's/"(stack|location|position).hh"/<\1.h>/g'\
-				include/parser.h include/position.h include/stack.h include/location.h
+	@bison -o src/parsing/parser.cc --defines=include/parsing/parser.h parsing/parser.yy
+	@mv src/parsing/location.hh include/parsing/location.h
+	@mv src/parsing/position.hh include/parsing/position.h
+	@mv src/parsing/stack.hh include/parsing/stack.h
+	@sed -i -r 's/"(parser|stack|location|position).(hh|h)"/<parsing\/\1.h>/g'\
+				include/parsing/parser.h include/parsing/position.h\
+				include/parsing/stack.h include/parsing/location.h\
+				$(BISON_SRC)
 
-flex: src/scanner.cc
-src/scanner.cc: parsing/scanner.ll
+flex: $(FLEX_SRC)
+$(FLEX_SRC): parsing/scanner.ll
 	@echo " [GEN] Generating scanner.cc"
-	@flex -o src/scanner.cc parsing/scanner.ll
+	@flex -o $(FLEX_SRC) parsing/scanner.ll
 
 # TEST
 test: bin/test
-
 bin/test: $(TESTS_OBJ) $(OBJ)
 	@echo " [LNK] Linking test"
 	@$(CXX) $(TESTS_OBJ) -lpthread $(OBJ) $(LIBRARIES)\
@@ -74,18 +79,19 @@ style:
 # END STYLE
 
 # SRC
-obj/%.o: %.cc
+obj/%.o: %.cc bison
 	@echo " [C++] Compiling $<"
 	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 # END SRC
 
 
 # CLEAN
-clean : clean_regular clean_test clean_exe
+clean : clean_regular clean_test clean_bin clean_bison clean_flex
 
-clean_exe:
-	@echo " [CLN] Cleaning executables"
-	@rm bin/*
+clean_bin:
+	@echo " [CLN] Cleaning binaries"
+	@touch .dummy
+	@rm -f bin/* .dummy
 
 clean_test:
 	@echo " [CLN] Cleaning test"
@@ -97,4 +103,17 @@ clean_regular:
 	@echo " [CLN] Cleaning src"
 	@touch .dummy
 	@rm $(shell find obj/src -name *.o) .dummy
+
+clean_bison:
+	@echo " [CLN] Cleaning parsing"
+	@touch .dummy
+	@rm -f include/parsing/location.h\
+			include/parsing/position.h\
+		  include/parsing/stack.h\
+		  include/parsing/parser.h\
+			src/parsing/parser.cc\
+			.dummy
+clean_flex:
+	@echo " [CLN] Cleaning flex"
+	@rm -f $(FLEX_SRC)
 # END CLEAN

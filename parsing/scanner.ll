@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include <scanner.h>
+#include <parsing/scanner.h>
 
 /* By default yylex returns int, we use token_type. Unfortunately yyterminate
  * by default returns 0, which is not of token_type. */
