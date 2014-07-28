@@ -40,7 +40,7 @@
 #ifndef YY_YY_INCLUDE_PARSING_PARSER_H_INCLUDED
 # define YY_YY_INCLUDE_PARSING_PARSER_H_INCLUDED
 // //                    "%code requires" blocks.
-#line 54 "parsing/parser.yy" // lalr1.cc:372
+#line 53 "parsing/parser.yy" // lalr1.cc:372
 
   #include <regexp.h>
   
@@ -276,18 +276,18 @@ namespace parser {
       // reg_exp
       // kleene
       // atom
-      char dummy1[sizeof(RegExp)];
+      char dummy1[sizeof(RegExp<std::string>)];
 
       // alternation
-      char dummy2[sizeof(alternation)];
+      char dummy2[sizeof(alternation<std::string>)];
 
       // concat
-      char dummy3[sizeof(concat)];
+      char dummy3[sizeof(concat<std::string>)];
 
       // "str_literal"
       // "id"
       // val
-      char dummy4[sizeof(int)];
+      char dummy4[sizeof(std::string)];
 };
 
     /// Symbol semantic values.
@@ -357,13 +357,13 @@ namespace parser {
 
   basic_symbol (typename Base::kind_type t, const location_type& l);
 
-  basic_symbol (typename Base::kind_type t, const RegExp v, const location_type& l);
+  basic_symbol (typename Base::kind_type t, const RegExp<std::string> v, const location_type& l);
 
-  basic_symbol (typename Base::kind_type t, const alternation v, const location_type& l);
+  basic_symbol (typename Base::kind_type t, const alternation<std::string> v, const location_type& l);
 
-  basic_symbol (typename Base::kind_type t, const concat v, const location_type& l);
+  basic_symbol (typename Base::kind_type t, const concat<std::string> v, const location_type& l);
 
-  basic_symbol (typename Base::kind_type t, const int v, const location_type& l);
+  basic_symbol (typename Base::kind_type t, const std::string v, const location_type& l);
 
 
       /// Constructor for symbols with semantic value.
@@ -429,11 +429,11 @@ namespace parser {
 
     static inline
     symbol_type
-    make_STR_LITERAL (const int& v, const location_type& l);
+    make_STR_LITERAL (const std::string& v, const location_type& l);
 
     static inline
     symbol_type
-    make_ID (const int& v, const location_type& l);
+    make_ID (const std::string& v, const location_type& l);
 
     static inline
     symbol_type

@@ -26,7 +26,7 @@ struct RegExp2NFA: public boost::static_visitor<uint> {
     graph_->at(start).emplace_back(end_, symbol);
     return start;
   }
-  result_type operator()(const re::concat &multy) const {
+  result_type operator()(const re::concat<uint> &multy) const {
     uint end = end_;
     for (int i = multy.children.size() - 1; i >= 0; --i){
       auto &expr = multy.children[i];
@@ -36,7 +36,7 @@ struct RegExp2NFA: public boost::static_visitor<uint> {
     return end;
   }
 
-  result_type operator()(const re::alternation &multy) const {
+  result_type operator()(const re::alternation<uint> &multy) const {
     graph_->emplace_back();
     uint start = graph_->size() - 1;
     for (auto &expr : multy.children) {
@@ -45,7 +45,7 @@ struct RegExp2NFA: public boost::static_visitor<uint> {
     }
     return start;
   }
-  result_type operator()(const re::kleene &unary) const {
+  result_type operator()(const re::kleene<uint> &unary) const {
     graph_->emplace_back();
     uint start = graph_->size() - 1;
     uint start2 = boost::apply_visitor(RegExp2NFA(graph_, start), unary.expr);
@@ -57,7 +57,7 @@ struct RegExp2NFA: public boost::static_visitor<uint> {
   }
 };
 
-NFA::NFA(const re::RegExp &regexp): graph_(), start_(), accept_() {
+NFA::NFA(const re::RegExp<uint> &regexp): graph_(), start_(), accept_() {
   accept_ = 0;
   graph_.emplace_back();
 

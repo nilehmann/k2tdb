@@ -8,7 +8,7 @@
  */
 
 #include <driver.h>
-#include <graph.h>
+#include <engine/graph_db.h>
 
 #include <boost/program_options/positional_options.hpp>
 #include <boost/program_options/options_description.hpp>

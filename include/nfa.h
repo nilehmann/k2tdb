@@ -28,7 +28,7 @@ const uint EPS = -1;
 
 class NFA {
  public:
-  NFA(const re::RegExp &regexp);
+  NFA(const re::RegExp<uint> &regexp);
 
   const Neighbors& neighbors(uint q) const {
     return graph_[q];

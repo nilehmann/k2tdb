@@ -70,7 +70,7 @@ node_right    \>
 
 <str_literal>\" {
   BEGIN(INITIAL);
-  yylval->build(driver.str_table.AddString(str_buff.str()));
+  yylval->build(str_buff.str());
   return token::STR_LITERAL;
 }
 
@@ -98,7 +98,7 @@ node_right    \>
 {node_right}        return token::NODE_RIGHT;
 
 {id} {
-  yylval->build(driver.str_table.AddString(yytext));
+  yylval->build(std::string(yytext));
   return token::ID;
 }
 

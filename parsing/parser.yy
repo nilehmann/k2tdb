@@ -42,7 +42,6 @@
  * provides a simple but effective pure interface, not relying on global
  * variables. */
 %parse-param { class Driver& driver }
-%lex-param { class Driver& driver}
 
 
 /* verbose error messages */
@@ -62,13 +61,13 @@
 }
 %define api.value.type variant
 
-%type <RegExp> reg_exp kleene atom
-%type <concat> concat
-%type <alternation> alternation
+%type <RegExp<std::string>> reg_exp kleene atom
+%type <concat<std::string>> concat
+%type <alternation<std::string>> alternation
 
-%type <int> val
-%token <int> STR_LITERAL "str_literal"	
-%token <int> ID          "id"
+%type <std::string> val
+%token <std::string> STR_LITERAL "str_literal"	
+%token <std::string> ID          "id"
 
 %token
   END 0       "end of file"
@@ -120,7 +119,7 @@ concat:
 /* type: regexp */
 kleene:
   atom               {std::swap($$, $1);}
-| atom "*"           {$$ = kleene(std::move($1));}
+| atom "*"           {$$ = kleene<std::string>(std::move($1));}
 
 /* type: regexp */
 atom:

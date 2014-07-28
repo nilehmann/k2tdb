@@ -7,27 +7,43 @@
  * ----------------------------------------------------------------------------
  */
 
-
-#include <dictionary_encoding.h>
+#include <engine/dictionary_encoding.h>
+#include <k2tree.h>
 #include <iostream>
 #include <fstream>
+#include <regex>
+#include <vector>
 
-#include <k2tree.h>
 
 #include <boost/program_options/positional_options.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <boost/tuple/tuple.hpp>
 
+#define URIREF <[^> ]+>
+#define LITERAL \042[^\042]+\042
+#define NAMEDNODE \047_:\047[A-Za-z][A-Za-z0-9]*
+#define SUBJECT URIREF|NAMEDNODE
+#define PREDICATE URIREF
+#define OBJECT URIREF|NAMEDNODE|LITERAL
+#define WS [ \t]
+#define STR(v) STR0(v)
+#define STR0(v) #v
 
 namespace po = boost::program_options;
 namespace lk2 = libk2tree;
 
-std::string base_name;
+std::string in_file, out_base;
 int k1, k2, kl, k1_levels;
 
+std::string trim(const std::string &s) {
+  if (s[0] == '<' || s[0] == '"')
+    return s.substr(1, s.size() - 2);
+  return s;
+}
 void ParseOps(int argc, char *argv[]) {
-  po::options_description ops("Usage: create_dictionary[options] input-graph"
+  po::options_description ops("Usage: create_dictionary [options] input-graph"
                               " output-base\n"
                               "Allowed options");
   ops.add_options()
@@ -40,13 +56,15 @@ void ParseOps(int argc, char *argv[]) {
 
   po::options_description files;
   files.add_options()
-    ("base_name", po::value<std::string>(), "Basename");
+    ("rdf-graph", po::value<std::string>(), "Input ttl file")
+    ("output", po::value<std::string>(), "Output basename");
 
   po::options_description all("All options");
   all.add(ops).add(files);
 
   po::positional_options_description p;
-  p.add("base_name", 1);
+  p.add("rdf-graph", 1);
+  p.add("output", 1);
 
   po::variables_map map;
   po::store(po::command_line_parser(argc, argv).
@@ -57,33 +75,71 @@ void ParseOps(int argc, char *argv[]) {
     std::cout << ops;
     exit(0);
   }
+
   if (kl == -1)
     kl = k2*k2*k2;
 
-  base_name = map["base_name"].as<std::string>();
+  in_file = map["rdf-graph"].as<std::string>();
+  out_base = map["output"].as<std::string>();
 }
 
-int main(int argc, char *argv[]) {
-  ParseOps(argc, argv);
-  std::ifstream in_triples(base_name + ".triples",
-                           std::ios::in | std::ios::binary);
-  DictionaryEncoding SO(base_name + ".so", false);
-  DictionaryEncoding P(base_name + ".p", false);
+std::vector<boost::tuple<uint, uint, uint>> triples;
 
-  in_triples.seekg (0, in_triples.end);
-  uint ntriples = in_triples.tellg()/3/sizeof(uint);
-  in_triples.seekg (0, in_triples.beg);
+template<int N>
+struct tuple_compare {
+  bool operator()(const boost::tuple<uint, uint, uint> &a,
+                  const boost::tuple<uint, uint, uint> &b) {
+    return boost::get<N>(a) < boost::get<N>(b);
+  }
+};
+void Encode() {
+  DictionaryEncoding SO(out_base + ".so", true);
+  DictionaryEncoding P(out_base + ".p", true);
 
-  std::ofstream out(base_name + ".k2tdb");
+  std::string triple_str = STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.);
+  std::regex triple(triple_str, std::regex::extended);
+  std::smatch match;
+
+  std::ifstream in(in_file, std::ifstream::in);
+  std::string line;
+
+  while (std::getline(in, line)) {
+    bool is_triple = std::regex_match(line, match, triple);
+    if (is_triple) {
+      std::string subject = trim(match.str(1));
+      std::string predicate = trim(match.str(2));
+      std::string object = trim(match.str(3));
+
+      SO.Add(subject);
+      SO.Add(object);
+      P.Add(predicate);
+
+      uint isubject, ipredicate, iobject;
+      SO.Encode(subject, &isubject);
+      SO.Encode(object, &iobject);
+      P.Encode(predicate, &ipredicate);
+
+      triples.emplace_back(isubject, ipredicate, iobject);
+    }
+  }
+  std::sort(triples.begin(), triples.end(), tuple_compare<1>());
+}
+
+void Build() {
+  DictionaryEncoding SO(out_base + ".so", false);
+  DictionaryEncoding P(out_base + ".p", false);
+  std::ofstream out(out_base + ".k2tdb");
+
   uint npredicates = P.Count();
   out.write(reinterpret_cast<char*>(&npredicates), sizeof(uint));
   uint curr_predicate = -1;
   lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
-  for (uint i = 0; i < ntriples; ++i) {
+  for (auto &triple : triples) {
     uint subject, predicate, object;
-    in_triples.read(reinterpret_cast<char*>(&subject), sizeof(uint));
-    in_triples.read(reinterpret_cast<char*>(&predicate), sizeof(uint));
-    in_triples.read(reinterpret_cast<char*>(&object), sizeof(uint));
+    subject = boost::get<0>(triple);
+    predicate = boost::get<1>(triple);
+    object = boost::get<2>(triple);
+
     if (curr_predicate != predicate) {
       if (curr_predicate != (uint)-1) {
         auto tree = builder.Build();
@@ -101,5 +157,11 @@ int main(int argc, char *argv[]) {
     compressed->Save(&out);
   }
 
+}
+
+int main(int argc, char *argv[]) {
+  ParseOps(argc, argv);
+  Encode();
+  Build();
   return 0;
 }

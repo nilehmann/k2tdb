@@ -14,23 +14,22 @@
 #include <string>
 #include <iostream>
 
-typedef unsigned int uint;
 class SymbolTable {
  public:
-  void SetSymbol(uint symbol, uint val) {
+  void SetSymbol(std::string symbol, std::string val) {
     map[symbol] = val;
   }
 
-  uint LookupSymbol(uint symbol) {
+  std::string LookupSymbol(std::string symbol) const {
     return map.at(symbol);
   }
 
-  bool Contains(uint symbol) {
+  bool Contains(std::string symbol) const {
     return map.count(symbol);
   }
 
  private:
-  std::unordered_map<uint, uint> map;
+  std::unordered_map<std::string, std::string> map;
   
 };
 #endif  // INCLUDE_SYMBOL_TABLE_H_

@@ -828,7 +828,7 @@ YY_RULE_SETUP
 #line 71 "parsing/scanner.ll"
 {
   BEGIN(INITIAL);
-  yylval->build(driver.str_table.AddString(str_buff.str()));
+  yylval->build(str_buff.str());
   return token::STR_LITERAL;
 }
 	YY_BREAK
@@ -909,7 +909,7 @@ case 15:
 YY_RULE_SETUP
 #line 100 "parsing/scanner.ll"
 {
-  yylval->build(driver.str_table.AddString(yytext));
+  yylval->build(std::string(yytext));
   return token::ID;
 }
 	YY_BREAK

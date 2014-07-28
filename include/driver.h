@@ -10,7 +10,7 @@
 #ifndef INCLUDE_DRIVER_H_
 #define INCLUDE_DRIVER_H_
 
-#include <graph.h>
+#include <engine/graph_db.h>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -18,7 +18,6 @@
 #include <fstream>
 #include <parsing/location.h>
 #include <symbol_table.h>
-#include <string_table.h>
 #include <regexp.h>
 
 // forward declaration
@@ -69,7 +68,7 @@ public:
    */
   bool parse_file(const std::string& filename);
 
-  void query(uint node, regexp::RegExp &expr);
+  void query(std::string node, regexp::RegExp<std::string> &expr);
 
   // To demonstrate pure handling of parse errors, instead of
   // simply dumping them on the standard error output, we will pass
@@ -89,7 +88,6 @@ public:
   Scanner *lexer;
 
   SymbolTable sym_table;
-  StringTable str_table;
 
   const GraphDB &db_;
 };

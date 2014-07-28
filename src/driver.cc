@@ -9,7 +9,6 @@
 
 #include <driver.h>
 #include <parsing/scanner.h>
-#include <dictionary_encoding.h>
 #include <nfa.h>
 
 Driver::Driver(const GraphDB &db)
@@ -17,11 +16,10 @@ Driver::Driver(const GraphDB &db)
       trace_parsing(false),
       lexer(),
       sym_table(),
-      str_table(),
       db_(db) {}
 
-void Driver::query(uint node, regexp::RegExp &expr) {
-  db_.Compute(node, expr, str_table);
+void Driver::query(std::string node, regexp::RegExp<std::string> &expr) {
+  db_.Compute(node, expr);
 }
 
 bool Driver::parse_stream(std::istream& in,

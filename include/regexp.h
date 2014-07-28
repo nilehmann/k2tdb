@@ -17,30 +17,68 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <array>
 
+#include <iostream>
+
 namespace regexp {
 
-template<typename OpTag> struct multy_op;
-template<typename OpTag> struct unary_op;
+template<typename OpTag, typename T> struct multy_op;
+template<typename OpTag, typename T> struct unary_op;
 struct concat_tag;
 struct alternation_tag;
 struct kleene_tag;
 
-typedef multy_op<concat_tag> concat;
-typedef multy_op<alternation_tag> alternation;
-typedef unary_op<kleene_tag> kleene;
+template<typename T> using concat = multy_op<concat_tag, T>;
+template<typename T> using alternation = multy_op<alternation_tag, T>;
+template<typename T> using kleene = unary_op<kleene_tag, T>;
 
-typedef boost::variant<
-          uint,
-          boost::recursive_wrapper<concat>,
-          boost::recursive_wrapper<alternation>,
-          boost::recursive_wrapper<kleene>
-        > RegExp;
-
-void print_expression(const RegExp &expr);
-
+template<typename T>
+using RegExp = boost::variant<
+  T,
+  boost::recursive_wrapper<concat<T>>,
+  boost::recursive_wrapper<alternation<T>>,
+  boost::recursive_wrapper<kleene<T>>
+  >;
 
 
-template<typename OpTag>
+
+template<typename T>
+class print: public boost::static_visitor<void> {
+ public:
+  result_type operator()(T value) const {
+    std::cout << value;
+  }
+
+  result_type operator()(const concat<T> &op) const {
+    for (auto &expr : op.children)
+      boost::apply_visitor(*this, expr);
+  }
+
+  result_type operator()(const alternation<T> &op) const {
+    printf("(");
+    auto expr = op.children.begin();
+    boost::apply_visitor(*this, *expr);
+    ++expr;
+    for (;expr < op.children.end(); ++expr) {
+      printf(" | ");
+      boost::apply_visitor(*this, *expr);
+    }
+    printf(")");
+  }
+
+  result_type operator()(const kleene<T> &unary) const {
+    printf("(");
+    boost::apply_visitor(*this, unary.expr);
+    printf(")*");
+  }
+};
+
+template<typename T>
+void print_expression(const RegExp<T> &expr) {
+  boost::apply_visitor(print<T>(), expr);
+  std::cout << std::endl;
+};
+
+template<typename OpTag, typename T>
 struct multy_op {
   multy_op() {}
   multy_op(multy_op &&rhs) noexcept {
@@ -51,22 +89,22 @@ struct multy_op {
     children.swap(rhs.children);
     return *this;
   }
-  void push_expr(RegExp &&expr) {
+  void push_expr(RegExp<T> &&expr) {
     children.push_back(std::move(expr));
   }
-  std::vector<RegExp> children;
+  std::vector<RegExp<T>> children;
 };
 
-template<typename OpTag>
+template<typename OpTag, typename T>
 struct unary_op {
   unary_op(unary_op &&rhs) noexcept: expr(std::move(rhs.expr)) {}
   unary_op(const unary_op &rhs): expr(rhs.expr) {}
-  unary_op(RegExp &&e) noexcept: expr(std::move(e)) {}
+  unary_op(RegExp<T> &&e) noexcept: expr(std::move(e)) {}
   unary_op &operator=(unary_op &&rhs) {
     std::swap(expr, rhs.expr);
     return *this;
   }
-  RegExp expr;
+  RegExp<T> expr;
 };
 
 

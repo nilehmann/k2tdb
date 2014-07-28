@@ -30,7 +30,7 @@
 // This special exception was added by the Free Software Foundation in
 // version 2.2 of Bison.
 // //                    "%code top" blocks.
-#line 89 "parsing/parser.yy" // lalr1.cc:392
+#line 88 "parsing/parser.yy" // lalr1.cc:392
 
  #include <driver.h>
  #include <parsing/scanner.h>
@@ -230,21 +230,21 @@ namespace parser {
       case 18: // reg_exp
       case 21: // kleene
       case 22: // atom
-        value.copy< RegExp > (other.value);
+        value.copy< RegExp<std::string> > (other.value);
         break;
 
       case 19: // alternation
-        value.copy< alternation > (other.value);
+        value.copy< alternation<std::string> > (other.value);
         break;
 
       case 20: // concat
-        value.copy< concat > (other.value);
+        value.copy< concat<std::string> > (other.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
       case 23: // val
-        value.copy< int > (other.value);
+        value.copy< std::string > (other.value);
         break;
 
       default:
@@ -267,21 +267,21 @@ namespace parser {
       case 18: // reg_exp
       case 21: // kleene
       case 22: // atom
-        value.copy< RegExp > (v);
+        value.copy< RegExp<std::string> > (v);
         break;
 
       case 19: // alternation
-        value.copy< alternation > (v);
+        value.copy< alternation<std::string> > (v);
         break;
 
       case 20: // concat
-        value.copy< concat > (v);
+        value.copy< concat<std::string> > (v);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
       case 23: // val
-        value.copy< int > (v);
+        value.copy< std::string > (v);
         break;
 
       default:
@@ -300,28 +300,28 @@ namespace parser {
   {}
 
   template <typename Base>
-  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const RegExp v, const location_type& l)
+  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const RegExp<std::string> v, const location_type& l)
     : Base (t)
     , value (v)
     , location (l)
   {}
 
   template <typename Base>
-  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const alternation v, const location_type& l)
+  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const alternation<std::string> v, const location_type& l)
     : Base (t)
     , value (v)
     , location (l)
   {}
 
   template <typename Base>
-  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const concat v, const location_type& l)
+  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const concat<std::string> v, const location_type& l)
     : Base (t)
     , value (v)
     , location (l)
   {}
 
   template <typename Base>
-  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const int v, const location_type& l)
+  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const std::string v, const location_type& l)
     : Base (t)
     , value (v)
     , location (l)
@@ -346,21 +346,21 @@ namespace parser {
       case 18: // reg_exp
       case 21: // kleene
       case 22: // atom
-        value.template destroy< RegExp > ();
+        value.template destroy< RegExp<std::string> > ();
         break;
 
       case 19: // alternation
-        value.template destroy< alternation > ();
+        value.template destroy< alternation<std::string> > ();
         break;
 
       case 20: // concat
-        value.template destroy< concat > ();
+        value.template destroy< concat<std::string> > ();
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
       case 23: // val
-        value.template destroy< int > ();
+        value.template destroy< std::string > ();
         break;
 
       default:
@@ -380,21 +380,21 @@ namespace parser {
       case 18: // reg_exp
       case 21: // kleene
       case 22: // atom
-        value.move< RegExp > (s.value);
+        value.move< RegExp<std::string> > (s.value);
         break;
 
       case 19: // alternation
-        value.move< alternation > (s.value);
+        value.move< alternation<std::string> > (s.value);
         break;
 
       case 20: // concat
-        value.move< concat > (s.value);
+        value.move< concat<std::string> > (s.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
       case 23: // val
-        value.move< int > (s.value);
+        value.move< std::string > (s.value);
         break;
 
       default:
@@ -442,13 +442,13 @@ namespace parser {
   }
 
   Parser::symbol_type
-  Parser::make_STR_LITERAL (const int& v, const location_type& l)
+  Parser::make_STR_LITERAL (const std::string& v, const location_type& l)
   {
     return symbol_type (token::STR_LITERAL, v, l);
   }
 
   Parser::symbol_type
-  Parser::make_ID (const int& v, const location_type& l)
+  Parser::make_ID (const std::string& v, const location_type& l)
   {
     return symbol_type (token::ID, v, l);
   }
@@ -560,21 +560,21 @@ namespace parser {
       case 18: // reg_exp
       case 21: // kleene
       case 22: // atom
-        value.move< RegExp > (that.value);
+        value.move< RegExp<std::string> > (that.value);
         break;
 
       case 19: // alternation
-        value.move< alternation > (that.value);
+        value.move< alternation<std::string> > (that.value);
         break;
 
       case 20: // concat
-        value.move< concat > (that.value);
+        value.move< concat<std::string> > (that.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
       case 23: // val
-        value.move< int > (that.value);
+        value.move< std::string > (that.value);
         break;
 
       default:
@@ -595,21 +595,21 @@ namespace parser {
       case 18: // reg_exp
       case 21: // kleene
       case 22: // atom
-        value.copy< RegExp > (that.value);
+        value.copy< RegExp<std::string> > (that.value);
         break;
 
       case 19: // alternation
-        value.copy< alternation > (that.value);
+        value.copy< alternation<std::string> > (that.value);
         break;
 
       case 20: // concat
-        value.copy< concat > (that.value);
+        value.copy< concat<std::string> > (that.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
       case 23: // val
-        value.copy< int > (that.value);
+        value.copy< std::string > (that.value);
         break;
 
       default:
@@ -791,7 +791,7 @@ namespace parser {
         YYCDEBUG << "Reading a token: ";
         try
           {
-            yyla.type = yytranslate_ (yylex (&yyla.value, &yyla.location, driver));
+            yyla.type = yytranslate_ (yylex (&yyla.value, &yyla.location));
           }
         catch (const syntax_error& yyexc)
           {
@@ -854,21 +854,21 @@ namespace parser {
       case 18: // reg_exp
       case 21: // kleene
       case 22: // atom
-        yylhs.value.build< RegExp > ();
+        yylhs.value.build< RegExp<std::string> > ();
         break;
 
       case 19: // alternation
-        yylhs.value.build< alternation > ();
+        yylhs.value.build< alternation<std::string> > ();
         break;
 
       case 20: // concat
-        yylhs.value.build< concat > ();
+        yylhs.value.build< concat<std::string> > ();
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
       case 23: // val
-        yylhs.value.build< int > ();
+        yylhs.value.build< std::string > ();
         break;
 
       default:
@@ -889,86 +889,86 @@ namespace parser {
           switch (yyn)
             {
   case 2:
-#line 104 "parsing/parser.yy" // lalr1.cc:847
-    {driver.sym_table.SetSymbol(yystack_[2].value.as< int > (), yystack_[0].value.as< int > ());}
+#line 103 "parsing/parser.yy" // lalr1.cc:847
+    {driver.sym_table.SetSymbol(yystack_[2].value.as< std::string > (), yystack_[0].value.as< std::string > ());}
 #line 895 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 3:
-#line 107 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< RegExp > () = std::move(yystack_[0].value.as< alternation > ());}
+#line 106 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< RegExp<std::string> > () = std::move(yystack_[0].value.as< alternation<std::string> > ());}
 #line 901 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 4:
-#line 111 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< alternation > ().push_expr(std::move(yystack_[0].value.as< concat > ())); }
+#line 110 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< alternation<std::string> > ().push_expr(std::move(yystack_[0].value.as< concat<std::string> > ())); }
 #line 907 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 5:
-#line 112 "parsing/parser.yy" // lalr1.cc:847
-    {std::swap(yylhs.value.as< alternation > (), yystack_[2].value.as< alternation > ()); yylhs.value.as< alternation > ().push_expr(std::move(yystack_[0].value.as< concat > ())); }
+#line 111 "parsing/parser.yy" // lalr1.cc:847
+    {std::swap(yylhs.value.as< alternation<std::string> > (), yystack_[2].value.as< alternation<std::string> > ()); yylhs.value.as< alternation<std::string> > ().push_expr(std::move(yystack_[0].value.as< concat<std::string> > ())); }
 #line 913 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 6:
-#line 116 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< concat > ().push_expr(std::move(yystack_[0].value.as< RegExp > ())); }
+#line 115 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< concat<std::string> > ().push_expr(std::move(yystack_[0].value.as< RegExp<std::string> > ())); }
 #line 919 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 7:
-#line 117 "parsing/parser.yy" // lalr1.cc:847
-    {std::swap(yylhs.value.as< concat > (), yystack_[2].value.as< concat > ()), yylhs.value.as< concat > ().push_expr(std::move(yystack_[0].value.as< RegExp > ())); }
+#line 116 "parsing/parser.yy" // lalr1.cc:847
+    {std::swap(yylhs.value.as< concat<std::string> > (), yystack_[2].value.as< concat<std::string> > ()), yylhs.value.as< concat<std::string> > ().push_expr(std::move(yystack_[0].value.as< RegExp<std::string> > ())); }
 #line 925 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 8:
-#line 118 "parsing/parser.yy" // lalr1.cc:847
-    {std::swap(yylhs.value.as< concat > (), yystack_[1].value.as< concat > ()), yylhs.value.as< concat > ().push_expr(std::move(yystack_[0].value.as< RegExp > ())); }
+#line 117 "parsing/parser.yy" // lalr1.cc:847
+    {std::swap(yylhs.value.as< concat<std::string> > (), yystack_[1].value.as< concat<std::string> > ()), yylhs.value.as< concat<std::string> > ().push_expr(std::move(yystack_[0].value.as< RegExp<std::string> > ())); }
 #line 931 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 9:
-#line 122 "parsing/parser.yy" // lalr1.cc:847
-    {std::swap(yylhs.value.as< RegExp > (), yystack_[0].value.as< RegExp > ());}
+#line 121 "parsing/parser.yy" // lalr1.cc:847
+    {std::swap(yylhs.value.as< RegExp<std::string> > (), yystack_[0].value.as< RegExp<std::string> > ());}
 #line 937 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 10:
-#line 123 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< RegExp > () = kleene(std::move(yystack_[1].value.as< RegExp > ()));}
+#line 122 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< RegExp<std::string> > () = kleene<std::string>(std::move(yystack_[1].value.as< RegExp<std::string> > ()));}
 #line 943 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 11:
-#line 127 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< RegExp > () = yystack_[0].value.as< int > ();}
+#line 126 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< RegExp<std::string> > () = yystack_[0].value.as< std::string > ();}
 #line 949 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 12:
-#line 128 "parsing/parser.yy" // lalr1.cc:847
-    {std::swap(yylhs.value.as< RegExp > (), yystack_[1].value.as< RegExp > ());}
+#line 127 "parsing/parser.yy" // lalr1.cc:847
+    {std::swap(yylhs.value.as< RegExp<std::string> > (), yystack_[1].value.as< RegExp<std::string> > ());}
 #line 955 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 13:
-#line 132 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< int > () = yystack_[0].value.as< int > ();}
+#line 131 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< std::string > () = yystack_[0].value.as< std::string > ();}
 #line 961 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 14:
-#line 133 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< int > () = driver.sym_table.LookupSymbol(yystack_[0].value.as< int > ());}
+#line 132 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< std::string > () = driver.sym_table.LookupSymbol(yystack_[0].value.as< std::string > ());}
 #line 967 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 15:
-#line 135 "parsing/parser.yy" // lalr1.cc:847
-    {driver.query(yystack_[4].value.as< int > (), yystack_[1].value.as< RegExp > ());}
+#line 134 "parsing/parser.yy" // lalr1.cc:847
+    {driver.query(yystack_[4].value.as< std::string > (), yystack_[1].value.as< RegExp<std::string> > ());}
 #line 973 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
@@ -1323,8 +1323,8 @@ namespace parser {
   const unsigned char
   Parser::yyrline_[] =
   {
-       0,   104,   104,   107,   111,   112,   116,   117,   118,   122,
-     123,   127,   128,   132,   133,   135,   138,   139,   141,   142
+       0,   103,   103,   106,   110,   111,   115,   116,   117,   121,
+     122,   126,   127,   131,   132,   134,   137,   138,   140,   141
   };
 
   // Print the state stack on the debug stream.
@@ -1407,7 +1407,7 @@ namespace parser {
 #line 28 "parsing/parser.yy" // lalr1.cc:1155
 } // parser
 #line 1410 "src/parsing/parser.cc" // lalr1.cc:1155
-#line 145 "parsing/parser.yy" // lalr1.cc:1156
+#line 144 "parsing/parser.yy" // lalr1.cc:1156
  /*** Additional Code ***/
 
 void parser::Parser::error(const Parser::location_type& l,
