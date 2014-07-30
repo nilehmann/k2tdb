@@ -15,17 +15,25 @@ namespace NFA {
 struct RegExp2NFA: public boost::static_visitor<uint> {
   Graph *graph_;
   uint end_;
+  bool converse_;
 
-  RegExp2NFA(Graph *g, uint e)
+  RegExp2NFA(Graph *g, uint e, bool converse = false)
       : graph_(g),
-        end_(e) {}
+        end_(e),
+        converse_(converse) {}
 
   result_type operator()(uint symbol) const {
     graph_->emplace_back();
     uint start = graph_->size() - 1;
-    graph_->at(start).emplace_back(end_, symbol);
+    graph_->at(start).emplace_back(end_, Symbol(symbol, converse_));
     return start;
   }
+
+  //TODO expand converse to all operations
+  result_type operator()(const re::converse<uint> &conv) const {
+    return boost::apply_visitor(RegExp2NFA(graph_, end_, true), conv.expr);
+  }
+
   result_type operator()(const re::concat<uint> &multy) const {
     uint end = end_;
     for (int i = multy.children.size() - 1; i >= 0; --i){

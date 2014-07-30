@@ -57,11 +57,12 @@
   using re::concat;
   using re::alternation;
   using re::kleene;
+  using re::converse;
   using re::RegExp;
 }
 %define api.value.type variant
 
-%type <RegExp<std::string>> reg_exp kleene atom
+%type <RegExp<std::string>> reg_exp kleene converse atom
 %type <concat<std::string>> concat
 %type <alternation<std::string>> alternation
 
@@ -81,6 +82,7 @@
   KLEENE      "*"
   LPAREN      "("
   RPAREN      ")"
+  CONVERSE    "^"
 ;
 
 
@@ -118,8 +120,13 @@ concat:
 
 /* type: regexp */
 kleene:
+  converse           {std::swap($$, $1);}
+| converse "*"       {$$ = kleene<std::string>(std::move($1));}
+
+/* type: regexp */
+converse:
   atom               {std::swap($$, $1);}
-| atom "*"           {$$ = kleene<std::string>(std::move($1));}
+| "^" atom           {$$ = converse<std::string>(std::move($2));}
 
 /* type: regexp */
 atom:

@@ -88,6 +88,7 @@ node_right    \>
 
 \.                  return token::CONCAT;
 \*                  return token::KLEENE;
+\^                  return token::CONVERSE;
 \|                  return token::ALTERNATION;
 \(                  return token::LPAREN;
 \)                  return token::RPAREN;

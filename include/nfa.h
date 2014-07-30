@@ -21,10 +21,27 @@ namespace re = regexp;
 using boost::tuple;
 
 
-typedef std::vector<tuple<uint, uint>> Neighbors;
-typedef std::vector<Neighbors> Graph;
-const uint EPS = -1;
 
+class Symbol {
+ public:
+  Symbol(uint id, bool converse = false): id_(id), converse_(converse) {}
+  operator uint() const {
+    return id_;
+  }
+  bool IsConverse() const {
+    return converse_;
+  }
+  bool operator==(const Symbol &rhs) {
+    return id_ == rhs.id_ && converse_ == rhs.converse_;
+  }
+ private:
+  uint id_;
+  bool converse_;
+};
+const Symbol EPS(-1);
+typedef uint State;
+typedef std::vector<tuple<State, Symbol>> Neighbors;
+typedef std::vector<Neighbors> Graph;
 
 class NFA {
  public:

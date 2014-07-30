@@ -26,17 +26,20 @@ template<typename OpTag, typename T> struct unary_op;
 struct concat_tag;
 struct alternation_tag;
 struct kleene_tag;
+struct converse_tag;
 
 template<typename T> using concat = multy_op<concat_tag, T>;
 template<typename T> using alternation = multy_op<alternation_tag, T>;
 template<typename T> using kleene = unary_op<kleene_tag, T>;
+template<typename T> using converse = unary_op<converse_tag, T>;
 
 template<typename T>
 using RegExp = boost::variant<
   T,
   boost::recursive_wrapper<concat<T>>,
   boost::recursive_wrapper<alternation<T>>,
-  boost::recursive_wrapper<kleene<T>>
+  boost::recursive_wrapper<kleene<T>>,
+  boost::recursive_wrapper<converse<T>>
   >;
 
 
@@ -69,6 +72,12 @@ class print: public boost::static_visitor<void> {
     printf("(");
     boost::apply_visitor(*this, unary.expr);
     printf(")*");
+  }
+
+  result_type operator()(const converse<T> &unary) const {
+    printf("^(");
+    boost::apply_visitor(*this, unary.expr);
+    printf(")");
   }
 };
 

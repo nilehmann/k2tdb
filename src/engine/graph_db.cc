@@ -29,7 +29,6 @@ void GraphDB::Compute(std::string n, regexp::RegExp<std::string> &exp) const {
   regexp::RegExp<uint> encoded = P_.Encode(exp);
   uint val;
   SO_.Encode(n, &val);
-  std::cerr << "node: " << n << " " << val << std::endl;
   Compute(val, encoded);
 }
 
@@ -52,29 +51,34 @@ void GraphDB::Compute(uint n, const NFA::NFA &nfa) const {
   using boost::tuple;
   using boost::make_tuple;
 
-  std::queue<tuple<uint, uint>> Q;
+  std::queue<tuple<uint, NFA::State>> Q;
   std::unordered_set<tuple<uint, uint>> V;
 
   Q.emplace(n, nfa.StartState());
   while (!Q.empty()) {
     uint u = Q.front().get<0>();
-    uint q = Q.front().get<1>();
-    std::cerr << "(" << u << ", " << q << ")" << std::endl;
+    NFA::State q = Q.front().get<1>();
     Q.pop();
 
     if (nfa.IsAcceptState(q))
       std::cout << SO_.Decode(u) << std::endl;
 
     for (auto &pair : nfa.neighbors(q)) {
-      uint r = pair.get<0>();
-      uint c = pair.get<1>();
-      std::cerr << "\t(" << r << ", " << c << ")" << std::endl;
+      NFA::State r = pair.get<0>();
+      NFA::Symbol symb = pair.get<1>();
 
-      if (c == NFA::EPS) {
+      if (symb == NFA::EPS) {
         V.emplace(u, r);
         Q.emplace(u, r);
+      } else if (!symb.IsConverse()){
+        k2trees_[symb].DirectLinks(u, [=, &V, &Q] (uint v) {
+          if (!V.count(make_tuple(v, r))) {
+            V.emplace(v, r);
+            Q.emplace(v,r);
+          }
+        });
       } else {
-        k2trees_[c].DirectLinks(u, [=, &V, &Q] (uint v) {
+        k2trees_[symb].InverseLinks(u, [=, &V, &Q] (uint v) {
           if (!V.count(make_tuple(v, r))) {
             V.emplace(v, r);
             Q.emplace(v,r);

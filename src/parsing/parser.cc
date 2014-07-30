@@ -30,7 +30,7 @@
 // This special exception was added by the Free Software Foundation in
 // version 2.2 of Bison.
 // //                    "%code top" blocks.
-#line 88 "parsing/parser.yy" // lalr1.cc:392
+#line 90 "parsing/parser.yy" // lalr1.cc:392
 
  #include <driver.h>
  #include <parsing/scanner.h>
@@ -227,23 +227,24 @@ namespace parser {
   {
       switch (other.type_get ())
     {
-      case 18: // reg_exp
-      case 21: // kleene
-      case 22: // atom
+      case 19: // reg_exp
+      case 22: // kleene
+      case 23: // converse
+      case 24: // atom
         value.copy< RegExp<std::string> > (other.value);
         break;
 
-      case 19: // alternation
+      case 20: // alternation
         value.copy< alternation<std::string> > (other.value);
         break;
 
-      case 20: // concat
+      case 21: // concat
         value.copy< concat<std::string> > (other.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
-      case 23: // val
+      case 25: // val
         value.copy< std::string > (other.value);
         break;
 
@@ -264,23 +265,24 @@ namespace parser {
     (void) v;
       switch (this->type_get ())
     {
-      case 18: // reg_exp
-      case 21: // kleene
-      case 22: // atom
+      case 19: // reg_exp
+      case 22: // kleene
+      case 23: // converse
+      case 24: // atom
         value.copy< RegExp<std::string> > (v);
         break;
 
-      case 19: // alternation
+      case 20: // alternation
         value.copy< alternation<std::string> > (v);
         break;
 
-      case 20: // concat
+      case 21: // concat
         value.copy< concat<std::string> > (v);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
-      case 23: // val
+      case 25: // val
         value.copy< std::string > (v);
         break;
 
@@ -343,23 +345,24 @@ namespace parser {
     // Type destructor.
     switch (yytype)
     {
-      case 18: // reg_exp
-      case 21: // kleene
-      case 22: // atom
+      case 19: // reg_exp
+      case 22: // kleene
+      case 23: // converse
+      case 24: // atom
         value.template destroy< RegExp<std::string> > ();
         break;
 
-      case 19: // alternation
+      case 20: // alternation
         value.template destroy< alternation<std::string> > ();
         break;
 
-      case 20: // concat
+      case 21: // concat
         value.template destroy< concat<std::string> > ();
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
-      case 23: // val
+      case 25: // val
         value.template destroy< std::string > ();
         break;
 
@@ -377,23 +380,24 @@ namespace parser {
     super_type::move(s);
       switch (this->type_get ())
     {
-      case 18: // reg_exp
-      case 21: // kleene
-      case 22: // atom
+      case 19: // reg_exp
+      case 22: // kleene
+      case 23: // converse
+      case 24: // atom
         value.move< RegExp<std::string> > (s.value);
         break;
 
-      case 19: // alternation
+      case 20: // alternation
         value.move< alternation<std::string> > (s.value);
         break;
 
-      case 20: // concat
+      case 21: // concat
         value.move< concat<std::string> > (s.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
-      case 23: // val
+      case 25: // val
         value.move< std::string > (s.value);
         break;
 
@@ -513,6 +517,12 @@ namespace parser {
     return symbol_type (token::RPAREN, l);
   }
 
+  Parser::symbol_type
+  Parser::make_CONVERSE (const location_type& l)
+  {
+    return symbol_type (token::CONVERSE, l);
+  }
+
 
 
   // by_state.
@@ -557,23 +567,24 @@ namespace parser {
   {
       switch (that.type_get ())
     {
-      case 18: // reg_exp
-      case 21: // kleene
-      case 22: // atom
+      case 19: // reg_exp
+      case 22: // kleene
+      case 23: // converse
+      case 24: // atom
         value.move< RegExp<std::string> > (that.value);
         break;
 
-      case 19: // alternation
+      case 20: // alternation
         value.move< alternation<std::string> > (that.value);
         break;
 
-      case 20: // concat
+      case 21: // concat
         value.move< concat<std::string> > (that.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
-      case 23: // val
+      case 25: // val
         value.move< std::string > (that.value);
         break;
 
@@ -592,23 +603,24 @@ namespace parser {
     state = that.state;
       switch (that.type_get ())
     {
-      case 18: // reg_exp
-      case 21: // kleene
-      case 22: // atom
+      case 19: // reg_exp
+      case 22: // kleene
+      case 23: // converse
+      case 24: // atom
         value.copy< RegExp<std::string> > (that.value);
         break;
 
-      case 19: // alternation
+      case 20: // alternation
         value.copy< alternation<std::string> > (that.value);
         break;
 
-      case 20: // concat
+      case 21: // concat
         value.copy< concat<std::string> > (that.value);
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
-      case 23: // val
+      case 25: // val
         value.copy< std::string > (that.value);
         break;
 
@@ -758,7 +770,7 @@ namespace parser {
     yyla.location.begin.filename = yyla.location.end.filename = &driver.streamname;
 }
 
-#line 762 "src/parsing/parser.cc" // lalr1.cc:725
+#line 774 "src/parsing/parser.cc" // lalr1.cc:725
 
     /* Initialize the stack.  The initial state will be set in
        yynewstate, since the latter expects the semantical and the
@@ -851,23 +863,24 @@ namespace parser {
          when using variants.  */
         switch (yyr1_[yyn])
     {
-      case 18: // reg_exp
-      case 21: // kleene
-      case 22: // atom
+      case 19: // reg_exp
+      case 22: // kleene
+      case 23: // converse
+      case 24: // atom
         yylhs.value.build< RegExp<std::string> > ();
         break;
 
-      case 19: // alternation
+      case 20: // alternation
         yylhs.value.build< alternation<std::string> > ();
         break;
 
-      case 20: // concat
+      case 21: // concat
         yylhs.value.build< concat<std::string> > ();
         break;
 
       case 3: // "str_literal"
       case 4: // "id"
-      case 23: // val
+      case 25: // val
         yylhs.value.build< std::string > ();
         break;
 
@@ -889,91 +902,103 @@ namespace parser {
           switch (yyn)
             {
   case 2:
-#line 103 "parsing/parser.yy" // lalr1.cc:847
+#line 105 "parsing/parser.yy" // lalr1.cc:847
     {driver.sym_table.SetSymbol(yystack_[2].value.as< std::string > (), yystack_[0].value.as< std::string > ());}
-#line 895 "src/parsing/parser.cc" // lalr1.cc:847
+#line 908 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 3:
-#line 106 "parsing/parser.yy" // lalr1.cc:847
+#line 108 "parsing/parser.yy" // lalr1.cc:847
     {yylhs.value.as< RegExp<std::string> > () = std::move(yystack_[0].value.as< alternation<std::string> > ());}
-#line 901 "src/parsing/parser.cc" // lalr1.cc:847
+#line 914 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 4:
-#line 110 "parsing/parser.yy" // lalr1.cc:847
+#line 112 "parsing/parser.yy" // lalr1.cc:847
     {yylhs.value.as< alternation<std::string> > ().push_expr(std::move(yystack_[0].value.as< concat<std::string> > ())); }
-#line 907 "src/parsing/parser.cc" // lalr1.cc:847
+#line 920 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 5:
-#line 111 "parsing/parser.yy" // lalr1.cc:847
+#line 113 "parsing/parser.yy" // lalr1.cc:847
     {std::swap(yylhs.value.as< alternation<std::string> > (), yystack_[2].value.as< alternation<std::string> > ()); yylhs.value.as< alternation<std::string> > ().push_expr(std::move(yystack_[0].value.as< concat<std::string> > ())); }
-#line 913 "src/parsing/parser.cc" // lalr1.cc:847
+#line 926 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 6:
-#line 115 "parsing/parser.yy" // lalr1.cc:847
+#line 117 "parsing/parser.yy" // lalr1.cc:847
     {yylhs.value.as< concat<std::string> > ().push_expr(std::move(yystack_[0].value.as< RegExp<std::string> > ())); }
-#line 919 "src/parsing/parser.cc" // lalr1.cc:847
+#line 932 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 7:
-#line 116 "parsing/parser.yy" // lalr1.cc:847
+#line 118 "parsing/parser.yy" // lalr1.cc:847
     {std::swap(yylhs.value.as< concat<std::string> > (), yystack_[2].value.as< concat<std::string> > ()), yylhs.value.as< concat<std::string> > ().push_expr(std::move(yystack_[0].value.as< RegExp<std::string> > ())); }
-#line 925 "src/parsing/parser.cc" // lalr1.cc:847
+#line 938 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 8:
-#line 117 "parsing/parser.yy" // lalr1.cc:847
+#line 119 "parsing/parser.yy" // lalr1.cc:847
     {std::swap(yylhs.value.as< concat<std::string> > (), yystack_[1].value.as< concat<std::string> > ()), yylhs.value.as< concat<std::string> > ().push_expr(std::move(yystack_[0].value.as< RegExp<std::string> > ())); }
-#line 931 "src/parsing/parser.cc" // lalr1.cc:847
+#line 944 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 9:
-#line 121 "parsing/parser.yy" // lalr1.cc:847
+#line 123 "parsing/parser.yy" // lalr1.cc:847
     {std::swap(yylhs.value.as< RegExp<std::string> > (), yystack_[0].value.as< RegExp<std::string> > ());}
-#line 937 "src/parsing/parser.cc" // lalr1.cc:847
+#line 950 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 10:
-#line 122 "parsing/parser.yy" // lalr1.cc:847
+#line 124 "parsing/parser.yy" // lalr1.cc:847
     {yylhs.value.as< RegExp<std::string> > () = kleene<std::string>(std::move(yystack_[1].value.as< RegExp<std::string> > ()));}
-#line 943 "src/parsing/parser.cc" // lalr1.cc:847
+#line 956 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 11:
-#line 126 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< RegExp<std::string> > () = yystack_[0].value.as< std::string > ();}
-#line 949 "src/parsing/parser.cc" // lalr1.cc:847
+#line 128 "parsing/parser.yy" // lalr1.cc:847
+    {std::swap(yylhs.value.as< RegExp<std::string> > (), yystack_[0].value.as< RegExp<std::string> > ());}
+#line 962 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 12:
-#line 127 "parsing/parser.yy" // lalr1.cc:847
-    {std::swap(yylhs.value.as< RegExp<std::string> > (), yystack_[1].value.as< RegExp<std::string> > ());}
-#line 955 "src/parsing/parser.cc" // lalr1.cc:847
+#line 129 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< RegExp<std::string> > () = converse<std::string>(std::move(yystack_[0].value.as< RegExp<std::string> > ()));}
+#line 968 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 13:
-#line 131 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< std::string > () = yystack_[0].value.as< std::string > ();}
-#line 961 "src/parsing/parser.cc" // lalr1.cc:847
+#line 133 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< RegExp<std::string> > () = yystack_[0].value.as< std::string > ();}
+#line 974 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 14:
-#line 132 "parsing/parser.yy" // lalr1.cc:847
-    {yylhs.value.as< std::string > () = driver.sym_table.LookupSymbol(yystack_[0].value.as< std::string > ());}
-#line 967 "src/parsing/parser.cc" // lalr1.cc:847
+#line 134 "parsing/parser.yy" // lalr1.cc:847
+    {std::swap(yylhs.value.as< RegExp<std::string> > (), yystack_[1].value.as< RegExp<std::string> > ());}
+#line 980 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
   case 15:
-#line 134 "parsing/parser.yy" // lalr1.cc:847
+#line 138 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< std::string > () = yystack_[0].value.as< std::string > ();}
+#line 986 "src/parsing/parser.cc" // lalr1.cc:847
+    break;
+
+  case 16:
+#line 139 "parsing/parser.yy" // lalr1.cc:847
+    {yylhs.value.as< std::string > () = driver.sym_table.LookupSymbol(yystack_[0].value.as< std::string > ());}
+#line 992 "src/parsing/parser.cc" // lalr1.cc:847
+    break;
+
+  case 17:
+#line 141 "parsing/parser.yy" // lalr1.cc:847
     {driver.query(yystack_[4].value.as< std::string > (), yystack_[1].value.as< RegExp<std::string> > ());}
-#line 973 "src/parsing/parser.cc" // lalr1.cc:847
+#line 998 "src/parsing/parser.cc" // lalr1.cc:847
     break;
 
 
-#line 977 "src/parsing/parser.cc" // lalr1.cc:847
+#line 1002 "src/parsing/parser.cc" // lalr1.cc:847
             default:
               break;
             }
@@ -1228,81 +1253,83 @@ namespace parser {
   }
 
 
-  const signed char Parser::yypact_ninf_ = -21;
+  const signed char Parser::yypact_ninf_ = -22;
 
   const signed char Parser::yytable_ninf_ = -1;
 
   const signed char
   Parser::yypact_[] =
   {
-     -21,    13,   -21,    -4,    12,    -9,    -7,   -21,     7,   -21,
-     -21,    11,   -21,   -21,   -21,    14,     1,     1,    15,     9,
-      -1,   -21,    16,   -21,    17,   -21,     1,     1,   -21,   -21,
-     -21,    -1,   -21
+     -22,    18,   -22,    -4,    17,   -10,    -6,   -22,    12,   -22,
+     -22,    16,   -22,   -22,   -22,    19,     4,     4,    -1,    20,
+      14,     1,   -22,    21,   -22,   -22,    22,   -22,   -22,     4,
+       4,   -22,   -22,   -22,     1,   -22
   };
 
   const unsigned char
   Parser::yydefact_[] =
   {
-      18,     0,     1,     0,     0,     0,     0,    19,     0,    13,
-      14,     0,    16,    17,     2,     0,     0,     0,     0,     3,
-       4,     6,     9,    11,     0,    15,     0,     0,     8,    10,
-      12,     5,     7
+      20,     0,     1,     0,     0,     0,     0,    21,     0,    15,
+      16,     0,    18,    19,     2,     0,     0,     0,     0,     0,
+       3,     4,     6,     9,    11,    13,     0,    12,    17,     0,
+       0,     8,    10,    14,     5,     7
   };
 
   const signed char
   Parser::yypgoto_[] =
   {
-     -21,   -21,     4,   -21,    -3,   -20,   -21,    21,   -21,   -21,
-     -21
+     -22,   -22,     9,   -22,     2,   -21,   -22,    10,    26,   -22,
+     -22,   -22
   };
 
   const signed char
   Parser::yydefgoto_[] =
   {
-      -1,     5,    18,    19,    20,    21,    22,    23,     6,     7,
-       1
+      -1,     5,    19,    20,    21,    22,    23,    24,    25,     6,
+       7,     1
   };
 
   const unsigned char
   Parser::yytable_[] =
   {
-      28,     8,     9,    10,     9,    10,    12,    32,    13,    27,
-      14,    28,    17,     2,    17,     9,    10,     3,    15,     4,
-      26,    24,    16,    31,    25,    11,     0,     0,    29,     0,
-       0,    30
+      31,     8,     9,    10,     9,    10,    12,     9,    10,    35,
+      13,    30,    17,    31,    17,    14,    18,    17,     2,    18,
+       9,    10,     3,    15,     4,    29,    26,    16,    27,    28,
+      11,    34,     0,    32,     0,     0,    33
   };
 
   const signed char
   Parser::yycheck_[] =
   {
-      20,     5,     3,     4,     3,     4,    15,    27,    15,    10,
-       3,    31,    13,     0,    13,     3,     4,     4,     7,     6,
-      11,    17,     8,    26,     9,     4,    -1,    -1,    12,    -1,
-      -1,    14
+      21,     5,     3,     4,     3,     4,    16,     3,     4,    30,
+      16,    10,    13,    34,    13,     3,    15,    13,     0,    15,
+       3,     4,     4,     7,     6,    11,    17,     8,    18,     9,
+       4,    29,    -1,    12,    -1,    -1,    14
   };
 
   const unsigned char
   Parser::yystos_[] =
   {
-       0,    26,     0,     4,     6,    17,    24,    25,     5,     3,
-       4,    23,    15,    15,     3,     7,     8,    13,    18,    19,
-      20,    21,    22,    23,    18,     9,    11,    10,    21,    12,
-      14,    20,    21
+       0,    28,     0,     4,     6,    18,    26,    27,     5,     3,
+       4,    25,    16,    16,     3,     7,     8,    13,    15,    19,
+      20,    21,    22,    23,    24,    25,    19,    24,     9,    11,
+      10,    22,    12,    14,    21,    22
   };
 
   const unsigned char
   Parser::yyr1_[] =
   {
-       0,    16,    17,    18,    19,    19,    20,    20,    20,    21,
-      21,    22,    22,    23,    23,    24,    25,    25,    26,    26
+       0,    17,    18,    19,    20,    20,    21,    21,    21,    22,
+      22,    23,    23,    24,    24,    25,    25,    26,    27,    27,
+      28,    28
   };
 
   const unsigned char
   Parser::yyr2_[] =
   {
        0,     2,     3,     1,     1,     3,     1,     3,     2,     1,
-       2,     1,     3,     1,     1,     6,     2,     2,     0,     2
+       2,     1,     2,     1,     3,     1,     1,     6,     2,     2,
+       0,     2
   };
 
 
@@ -1314,17 +1341,18 @@ namespace parser {
   {
   "\"end of file\"", "error", "$undefined", "\"str_literal\"", "\"id\"",
   "\"=\"", "\"<\"", "\">\"", "\"[\"", "\"]\"", "\".\"", "\"|\"", "\"*\"",
-  "\"(\"", "\")\"", "';'", "$accept", "assignment", "reg_exp",
-  "alternation", "concat", "kleene", "atom", "val", "query", "command",
-  "start", YY_NULLPTR
+  "\"(\"", "\")\"", "\"^\"", "';'", "$accept", "assignment", "reg_exp",
+  "alternation", "concat", "kleene", "converse", "atom", "val", "query",
+  "command", "start", YY_NULLPTR
   };
 
 #if YYDEBUG
   const unsigned char
   Parser::yyrline_[] =
   {
-       0,   103,   103,   106,   110,   111,   115,   116,   117,   121,
-     122,   126,   127,   131,   132,   134,   137,   138,   140,   141
+       0,   105,   105,   108,   112,   113,   117,   118,   119,   123,
+     124,   128,   129,   133,   134,   138,   139,   141,   144,   145,
+     147,   148
   };
 
   // Print the state stack on the debug stream.
@@ -1370,7 +1398,7 @@ namespace parser {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    15,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    16,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1391,9 +1419,10 @@ namespace parser {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12,    13,    14
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+      15
     };
-    const unsigned int user_token_number_max_ = 269;
+    const unsigned int user_token_number_max_ = 270;
     const token_number_type undef_token_ = 2;
 
     if (static_cast<int>(t) <= yyeof_)
@@ -1406,8 +1435,8 @@ namespace parser {
 
 #line 28 "parsing/parser.yy" // lalr1.cc:1155
 } // parser
-#line 1410 "src/parsing/parser.cc" // lalr1.cc:1155
-#line 144 "parsing/parser.yy" // lalr1.cc:1156
+#line 1439 "src/parsing/parser.cc" // lalr1.cc:1155
+#line 151 "parsing/parser.yy" // lalr1.cc:1156
  /*** Additional Code ***/
 
 void parser::Parser::error(const Parser::location_type& l,

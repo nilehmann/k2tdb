@@ -48,9 +48,10 @@
   using re::concat;
   using re::alternation;
   using re::kleene;
+  using re::converse;
   using re::RegExp;
 
-#line 54 "include/parsing/parser.h" // lalr1.cc:372
+#line 55 "include/parsing/parser.h" // lalr1.cc:372
 
 
 # include <vector>
@@ -126,7 +127,7 @@
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 namespace parser {
-#line 130 "include/parsing/parser.h" // lalr1.cc:372
+#line 131 "include/parsing/parser.h" // lalr1.cc:372
 
 
 
@@ -275,6 +276,7 @@ namespace parser {
     {
       // reg_exp
       // kleene
+      // converse
       // atom
       char dummy1[sizeof(RegExp<std::string>)];
 
@@ -322,7 +324,8 @@ namespace parser {
         ALTERNATION = 266,
         KLEENE = 267,
         LPAREN = 268,
-        RPAREN = 269
+        RPAREN = 269,
+        CONVERSE = 270
       };
     };
 
@@ -474,6 +477,10 @@ namespace parser {
     static inline
     symbol_type
     make_RPAREN (const location_type& l);
+
+    static inline
+    symbol_type
+    make_CONVERSE (const location_type& l);
 
 
     /// Build a parser object.
@@ -675,13 +682,13 @@ namespace parser {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 31,     ///< Last index in yytable_.
-      yynnts_ = 11,  ///< Number of nonterminal symbols.
+      yylast_ = 36,     ///< Last index in yytable_.
+      yynnts_ = 12,  ///< Number of nonterminal symbols.
       yyempty_ = -2,
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 16  ///< Number of tokens.
+      yyntokens_ = 17  ///< Number of tokens.
     };
 
 
@@ -692,7 +699,7 @@ namespace parser {
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 } // parser
-#line 696 "include/parsing/parser.h" // lalr1.cc:372
+#line 703 "include/parsing/parser.h" // lalr1.cc:372
 
 
 
