@@ -15,30 +15,43 @@ using boost::filesystem::path;
 DictionaryEncoding::DictionaryEncoding(const path &base_file,
                                        bool trunc)
     : db_(),
-      array_(base_file.native() + ".arr", 201, trunc){
+      inverse_db_() {
+      //array_(base_file.native() + ".arr", 201, trunc){
   int opts = HashDB::OWRITER | HashDB::OCREATE;
   if (trunc)
     opts |= HashDB::OTRUNCATE;
-  db_.open(base_file.native() + ".kch", opts);
+  db_.open(base_file.native() + "s2i.kch", opts);
+  inverse_db_.open(base_file.native() + "i2s.kch", opts);
 }
 
 bool DictionaryEncoding::Add(const std::string &s) {
   if (db_.check(s) != -1)
     return false;
-  uint pos = array_.PushBack(s) - 1;
+  //uint pos = array_.PushBack(s) - 1;
+  uint pos = db_.count();
   db_.add(s.data(), s.size(), reinterpret_cast<char*>(&pos), sizeof(uint));
+  inverse_db_.add(reinterpret_cast<char*>(&pos), sizeof(uint),
+                  s.data(), s.size());
   return true;
 }
 bool DictionaryEncoding::Encode(const std::string &key, uint *val) const {
-  return const_cast<HashDB&>(db_).get(key.data(), key.size(),
-                 reinterpret_cast<char*>(val), sizeof(uint)) != -1;
+  return const_cast<HashDB&>(db_).get(
+      key.data(), key.size(),
+      reinterpret_cast<char*>(val), sizeof(uint)) != -1;
 }
 uint DictionaryEncoding::Count() {
   return db_.count();
 }
 
 std::string DictionaryEncoding::Decode(uint key) const {
-  return array_[key];
+  //return array_[key];
+  size_t size;
+  char *arr = const_cast<HashDB&>(inverse_db_).get(
+      reinterpret_cast<char*>(&key), sizeof(uint),
+      &size);
+  std::string s(arr);
+  delete [] arr;
+  return s;
 }
 
 DictionaryEncoding::~DictionaryEncoding() {
@@ -72,7 +85,6 @@ struct encode_visitor: public boost::static_visitor<regexp::RegExp<uint>> {
 
 regexp::RegExp<uint> DictionaryEncoding::Encode(
     regexp::RegExp<std::string> &exp) const {
-  regexp::print_expression(exp);
   return boost::apply_visitor(encode_visitor(*this), exp);
 }
 

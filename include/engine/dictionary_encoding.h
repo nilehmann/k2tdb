@@ -30,7 +30,7 @@ class DictionaryEncoding {
    */
   regexp::RegExp<uint> Encode(regexp::RegExp<std::string> &exp) const;
   /**
-   * Check if exists and encode the given string.
+   * Check if exists and returns the encoding of the given string.
    * @param key The string to encode.
    * @param val The encoding result is stored in this pointer.
    * 
@@ -38,7 +38,7 @@ class DictionaryEncoding {
    */
   bool Encode(const std::string &key, uint *val) const;
   /**
-   * Decode the given id
+   * Decode the given id.
    *
    * @param key Id to be decoded. Calling this method with an id not in the
    * dictionary range yields an unspecified behavior
@@ -47,12 +47,22 @@ class DictionaryEncoding {
    */
   std::string Decode(uint key) const;
   bool Check(const std::string &s) {return db_.check(s);}
+
+  /**
+   * Adds string to dictionary. The string gets the next id as encoding.
+   *
+   * @param s String
+   *
+   * @return false if the string was already in the dictionary, true in case
+   * the string was actually added to the dictionary.
+   */
   bool Add(const std::string &s);
   uint Count();
   ~DictionaryEncoding();
  private:
   kyotocabinet::HashDB db_;
-  secondary_storage::FixedArray<std::string> array_;
+  //secondary_storage::FixedArray<std::string> array_;
+  kyotocabinet::HashDB inverse_db_;
 };
 
 
