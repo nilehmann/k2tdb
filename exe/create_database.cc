@@ -20,9 +20,16 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/tuple/tuple.hpp>
 
+
+
 #define URIREF <[^> ]+>
+#define ECHAR \\\\[tbnrf\042\047\\\\]
+#define HEX ([0-9]|[A-F]|[a-f])
+#define UCHAR UCHARXXX|UCHARXXXXXXXX
+#define UCHARXXX \\\\\165([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])
+#define UCHARXXXXXXXX \\\\\\125([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])
 #define LANGTAG (@[a-zA-Z]+(-[a-zA-Z0-9]+)*)
-#define STR_LITERAL \042([^\042]|\\\\\042)+\042
+#define STR_LITERAL \042([^\042]|ECHAR|UCHAR)+\042
 #define LITERAL STR_LITERAL(\\^\\^(URIREF|LANGTAG))?
 #define NAMEDNODE \047_:\047[A-Za-z][A-Za-z0-9]*
 #define SUBJECT URIREF|NAMEDNODE
@@ -119,7 +126,7 @@ void Encode() {
   DictionaryEncoding P;
   P.Create(out_base + ".p", 10000);
 
-  //std::cerr << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
+  std::cerr << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
   std::string triple_str = STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.);
   std::regex triple(triple_str, std::regex::extended);
   std::smatch match;
