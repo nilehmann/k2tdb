@@ -12,17 +12,20 @@ using kyotocabinet::HashDB;
 using boost::filesystem::path;
 
 
-DictionaryEncoding::DictionaryEncoding(const path &base_file,
-                                       bool trunc)
-    : db_(),
-      inverse_db_() {
-      //array_(base_file.native() + ".arr", 201, trunc){
-  int opts = HashDB::OWRITER | HashDB::OCREATE;
-  if (trunc)
-    opts |= HashDB::OTRUNCATE;
-  db_.open(base_file.native() + "s2i.kch", opts);
-  inverse_db_.open(base_file.native() + "i2s.kch", opts);
+
+void DictionaryEncoding::Create(const boost::filesystem::path &base_name,
+                                uint expected) {
+  auto opts = HashDB::OWRITER | HashDB::OTRUNCATE | HashDB::OCREATE;
+  db_.tune_buckets(2L * expected);
+  db_.open(base_name.native() + "s2i.kch", opts);
+  inverse_db_.open(base_name.native() + "i2s.kch", opts);
 }
+void DictionaryEncoding::Open(const boost::filesystem::path &base_name) {
+  auto opts = HashDB::OREADER;
+  db_.open(base_name.native() + "s2i.kch", opts);
+  inverse_db_.open(base_name.native() + "i2s.kch", opts);
+}
+
 
 bool DictionaryEncoding::Add(const std::string &s) {
   if (db_.check(s) != -1)
@@ -35,7 +38,7 @@ bool DictionaryEncoding::Add(const std::string &s) {
   return true;
 }
 bool DictionaryEncoding::Encode(const std::string &key, uint *val) const {
-  return const_cast<HashDB&>(db_).get(
+  return db_.get(
       key.data(), key.size(),
       reinterpret_cast<char*>(val), sizeof(uint)) != -1;
 }
@@ -46,7 +49,7 @@ uint DictionaryEncoding::Count() {
 std::string DictionaryEncoding::Decode(uint key) const {
   //return array_[key];
   size_t size;
-  char *arr = const_cast<HashDB&>(inverse_db_).get(
+  char *arr = inverse_db_.get(
       reinterpret_cast<char*>(&key), sizeof(uint),
       &size);
   std::string s(arr);
@@ -56,6 +59,7 @@ std::string DictionaryEncoding::Decode(uint key) const {
 
 DictionaryEncoding::~DictionaryEncoding() {
   db_.close();
+  inverse_db_.close();
 }
 
 struct encode_visitor: public boost::static_visitor<regexp::RegExp<uint>> {

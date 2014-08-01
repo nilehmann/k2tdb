@@ -16,8 +16,10 @@
 #include <boost/tuple/tuple_comparison.hpp>
 namespace utils = libk2tree::utils; GraphDB::GraphDB(fs::path db_name)
     : k2trees_(),
-      SO_(db_name.native() + ".so"),
-      P_(db_name.native() + ".p") {
+      SO_(),
+      P_() {
+  SO_.Open(db_name.native() + ".so");
+  P_.Open(db_name.native() + ".p");
   std::ifstream in(db_name.native() + ".k2tdb");
   uint s = utils::LoadValue<uint>(&in);
   k2trees_.reserve(s);

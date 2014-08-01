@@ -19,8 +19,8 @@
 
 class DictionaryEncoding {
  public:
-  DictionaryEncoding(const boost::filesystem::path &base_file,
-                     bool trunc = false);
+  void Create(const boost::filesystem::path &base_name, uint expected);
+  void Open(const boost::filesystem::path &base_name);
   /**
    * Encode each symbol in the regular expression using this dictionary.
    *
@@ -49,7 +49,7 @@ class DictionaryEncoding {
   bool Check(const std::string &s) {return db_.check(s);}
 
   /**
-   * Adds string to dictionary. The string gets the next id as encoding.
+   * Adds a string to the dictionary. The string gets the next id as encoding.
    *
    * @param s String
    *
@@ -60,9 +60,9 @@ class DictionaryEncoding {
   uint Count();
   ~DictionaryEncoding();
  private:
-  kyotocabinet::HashDB db_;
+  mutable kyotocabinet::HashDB db_;
   //secondary_storage::FixedArray<std::string> array_;
-  kyotocabinet::HashDB inverse_db_;
+  mutable kyotocabinet::HashDB inverse_db_;
 };
 
 

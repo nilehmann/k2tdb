@@ -1,6 +1,6 @@
 # started 2013-07-10t03:11:48z
-<http://test/ELP> <http://test/estilo> <http://test/RockProgresivo> .
-<http://test/ELP> <http://test/estilo> <http://test/FolkProgresivo> .
-<http://test/KeithEmerson> <http://test/integrante> <http://test/ELP> .
-<http://test/KeithEmerson> <http://test/integrante> <http://test/TheNice> .
-<http://test/TheNice> <http://test/estilo> <http://test/RockProgresivo> .
+<ELP> <estilo> <RockProgresivo> .
+<ELP> <estilo> <FolkProgresivo> .
+<KeithEmerson> <integrante> <ELP> .
+<KeithEmerson> <integrante> <TheNice> .
+<TheNice> <est/estilo> <RockProgresivo> .

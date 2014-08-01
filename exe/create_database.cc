@@ -36,6 +36,7 @@ namespace lk2 = libk2tree;
 
 std::string in_file, out_base;
 int k1, k2, kl, k1_levels;
+int w;
 
 std::string trim(const std::string &s) {
   if (s[0] == '<' || s[0] == '"')
@@ -48,6 +49,8 @@ void ParseOps(int argc, char *argv[]) {
                               "Allowed options");
   ops.add_options()
     ("help,h", "Print this help")
+    ("so", po::value<int>(&w)->default_value(1000000),
+     "Expected number of subject and object")
     ("k1", po::value<int>(&k1)->default_value(4), "Arity of the first leveles")
     ("k2", po::value<int>(&k2)->default_value(2), "Arity of the second part")
     ("kl", po::value<int>(&kl)->default_value(-1), "Arity of the level height - 1")
@@ -93,8 +96,10 @@ struct tuple_compare {
   }
 };
 void Encode() {
-  DictionaryEncoding SO(out_base + ".so", true);
-  DictionaryEncoding P(out_base + ".p", true);
+  DictionaryEncoding SO;
+  SO.Create(out_base + ".so", w);
+  DictionaryEncoding P;
+  P.Create(out_base + ".p", 10000);
 
   std::string triple_str = STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.);
   std::regex triple(triple_str, std::regex::extended);
@@ -103,6 +108,7 @@ void Encode() {
   std::ifstream in(in_file, std::ifstream::in);
   std::string line;
 
+  uint encoded = 1;
   while (std::getline(in, line)) {
     bool is_triple = std::regex_match(line, match, triple);
     if (is_triple) {
@@ -120,20 +126,27 @@ void Encode() {
       P.Encode(predicate, &ipredicate);
 
       triples.emplace_back(isubject, ipredicate, iobject);
+      if (encoded % 1000000 == 0)
+        std::cerr << "Number of triples encoded: " << (encoded++) << std::endl;
     }
   }
   std::sort(triples.begin(), triples.end(), tuple_compare<1>());
 }
 
 void Build() {
-  DictionaryEncoding SO(out_base + ".so", false);
-  DictionaryEncoding P(out_base + ".p", false);
+  std::cerr << "Starting building" << std::endl;
+  DictionaryEncoding SO;
+  SO.Open(out_base + ".so");
+  DictionaryEncoding P;
+  P.Open(out_base + ".p");
   std::ofstream out(out_base + ".k2tdb");
 
   uint npredicates = P.Count();
   out.write(reinterpret_cast<char*>(&npredicates), sizeof(uint));
   uint curr_predicate = -1;
   lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
+  uint i = 1;
+  std::cerr << "Building tree #" << (i++) << std::endl;
   for (auto &triple : triples) {
     uint subject, predicate, object;
     subject = boost::get<0>(triple);
@@ -145,6 +158,7 @@ void Build() {
         auto tree = builder.Build();
         auto compressed = tree->CompressLeaves();
         compressed->Save(&out);
+        std::cerr << "Building tree #" << (i++) << std::endl;
       }
       curr_predicate = predicate;
       builder.Clear();
@@ -156,7 +170,7 @@ void Build() {
     auto compressed = tree->CompressLeaves();
     compressed->Save(&out);
   }
-
+  std::cerr << "Building finished" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
