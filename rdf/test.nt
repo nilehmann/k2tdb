@@ -5,5 +5,6 @@
 <KeithEmerson> <integrante> <TheNice> .
 <TheNice> <est/estilo> <RockProgresivo> .
 <ELP> <nombre> "Emerson, Lake and Palmer" .
+<ELP> <nombreAlternativo> "Emerson, Lake and Palmer"^^<iri> .
 <ELP> <nombreAlternativo> "Emerson, Lake && Palmer"^^@a-aldk .
-<ELP> <nombreAlternativo> "Emerson, Lake n' Palmer"^^@1-aldk .
+<ELP> <nombreAlternativo> "Emerson, Lake n' Palmer"^^@aldk .

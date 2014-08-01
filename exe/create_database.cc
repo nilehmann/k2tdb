@@ -6,7 +6,6 @@
  * this stuff is worth it, you can buy me a beer in return Nicolás Lehmann
  * ----------------------------------------------------------------------------
  */
-
 #include <engine/dictionary_encoding.h>
 #include <k2tree.h>
 #include <iostream>
@@ -22,9 +21,9 @@
 #include <boost/tuple/tuple.hpp>
 
 #define URIREF <[^> ]+>
-#define LANGTAG @[a-zA-Z]+(-[a-zA-Z0-9])*
-#define LITERAL STR_LITERAL(^^URIREF|LANGTAG)?
+#define LANGTAG (@[a-zA-Z]+(-[a-zA-Z0-9]+)*)
 #define STR_LITERAL \042[^\042]+\042
+#define LITERAL STR_LITERAL(\\^\\^(URIREF|LANGTAG))?
 #define NAMEDNODE \047_:\047[A-Za-z][A-Za-z0-9]*
 #define SUBJECT URIREF|NAMEDNODE
 #define PREDICATE URIREF
@@ -54,11 +53,11 @@ std::string in_file, out_base;
 int k1, k2, kl, k1_levels;
 int w;
 
-std::string trim(const std::string &s) {
-  if (s[0] == '<' || s[0] == '"')
-    return s.substr(1, s.size() - 2);
-  return s;
-}
+//std::string trim(const std::string &s) {
+  //if (s[0] == '<' || s[0] == '"')
+    //return s.substr(1, s.size() - 2);
+  //return s;
+//}
 void ParseOps(int argc, char *argv[]) {
   po::options_description ops("Usage: create_dictionary [options] input-graph"
                               " output-base\n"
@@ -120,6 +119,7 @@ void Encode() {
   DictionaryEncoding P;
   P.Create(out_base + ".p", 10000);
 
+  std::cerr << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
   std::string triple_str = STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.);
   std::regex triple(triple_str, std::regex::extended);
   std::smatch match;
@@ -131,9 +131,11 @@ void Encode() {
   while (std::getline(in, line)) {
     bool is_triple = std::regex_match(line, match, triple);
     if (is_triple) {
-      std::string subject = trim(match.str(1));
-      std::string predicate = trim(match.str(2));
-      std::string object = trim(match.str(3));
+      std::string subject = match.str(1);
+      std::string predicate = match.str(2);
+      std::string object = match.str(3);
+
+      std::cerr << "|" << subject << "| |" << predicate << "| |" << object << "|\n";
 
       SO.Add(subject);
       SO.Add(object);
