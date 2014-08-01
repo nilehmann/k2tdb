@@ -22,7 +22,7 @@
 
 #define URIREF <[^> ]+>
 #define LANGTAG (@[a-zA-Z]+(-[a-zA-Z0-9]+)*)
-#define STR_LITERAL \042[^\042]+\042
+#define STR_LITERAL \042([^\042]|\\\\\042)+\042
 #define LITERAL STR_LITERAL(\\^\\^(URIREF|LANGTAG))?
 #define NAMEDNODE \047_:\047[A-Za-z][A-Za-z0-9]*
 #define SUBJECT URIREF|NAMEDNODE
@@ -119,7 +119,7 @@ void Encode() {
   DictionaryEncoding P;
   P.Create(out_base + ".p", 10000);
 
-  std::cerr << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
+  //std::cerr << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
   std::string triple_str = STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.);
   std::regex triple(triple_str, std::regex::extended);
   std::smatch match;
@@ -135,7 +135,7 @@ void Encode() {
       std::string predicate = match.str(2);
       std::string object = match.str(3);
 
-      std::cerr << "|" << subject << "| |" << predicate << "| |" << object << "|\n";
+      //std::cerr << "|" << subject << "| |" << predicate << "| |" << object << "|\n";
 
       SO.Add(subject);
       SO.Add(object);
