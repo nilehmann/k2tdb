@@ -22,7 +22,9 @@
 #include <boost/tuple/tuple.hpp>
 
 #define URIREF <[^> ]+>
-#define LITERAL \042[^\042]+\042
+#define LANGTAG @[a-zA-Z]+(-[a-zA-Z0-9])*
+#define LITERAL STR_LITERAL(^^URIREF|LANGTAG)?
+#define STR_LITERAL \042[^\042]+\042
 #define NAMEDNODE \047_:\047[A-Za-z][A-Za-z0-9]*
 #define SUBJECT URIREF|NAMEDNODE
 #define PREDICATE URIREF
