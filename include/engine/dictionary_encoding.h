@@ -57,6 +57,7 @@ class DictionaryEncoding {
    * the string was actually added to the dictionary.
    */
   bool Add(const std::string &s);
+
   uint Count();
   ~DictionaryEncoding();
  private:
