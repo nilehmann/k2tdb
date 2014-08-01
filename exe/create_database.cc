@@ -25,9 +25,7 @@
 #define URIREF <[^> ]+>
 #define ECHAR \\\\[tbnrf\042\047\\\\]
 #define HEX ([0-9]|[A-F]|[a-f])
-#define UCHAR UCHARXXX|UCHARXXXXXXXX
-#define UCHARXXX \\\\\165([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])
-#define UCHARXXXXXXXX \\\\\\125([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])([0-9]|[A-F]|[a-f])
+#define UCHAR (\\\\\165([0-9]|[A-F]|[a-f]){3}|\\\\\125([0-9]|[A-F]|[a-f]){8})
 #define LANGTAG (@[a-zA-Z]+(-[a-zA-Z0-9]+)*)
 #define STR_LITERAL \042([^\042]|ECHAR|UCHAR)+\042
 #define LITERAL STR_LITERAL(\\^\\^(URIREF|LANGTAG))?
