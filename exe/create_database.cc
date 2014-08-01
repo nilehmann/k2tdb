@@ -36,6 +36,20 @@
 namespace po = boost::program_options;
 namespace lk2 = libk2tree;
 
+/* Time meassuring */
+double ticks;
+struct tms t1,t2;
+
+void start_clock() {
+	times (&t1);
+}
+
+double stop_clock() {
+	times (&t2);
+	return (t2.tms_utime-t1.tms_utime)/ticks;
+}
+/* end Time meassuring */
+
 std::string in_file, out_base;
 int k1, k2, kl, k1_levels;
 int w;
@@ -98,6 +112,9 @@ struct tuple_compare {
   }
 };
 void Encode() {
+  uint t;
+  start_clock();
+  std::cerr << "[ENC] Starting encoding\n";
   DictionaryEncoding SO;
   SO.Create(out_base + ".so", w);
   DictionaryEncoding P;
@@ -110,7 +127,7 @@ void Encode() {
   std::ifstream in(in_file, std::ifstream::in);
   std::string line;
 
-  uint encoded = 1;
+  uint nlines = 0;
   while (std::getline(in, line)) {
     bool is_triple = std::regex_match(line, match, triple);
     if (is_triple) {
@@ -128,15 +145,26 @@ void Encode() {
       P.Encode(predicate, &ipredicate);
 
       triples.emplace_back(isubject, ipredicate, iobject);
-      if (encoded % 1000000 == 0)
-        std::cerr << "Number of triples encoded: " << (encoded++) << std::endl;
+      if (triples.size() % 1000000 == 0)
+        std::cerr << "[ENC] Tiples encoded: " << triples.size() << std::endl;
+    } else {
+      std::cerr << "[ENC] No matched line: " << line << std::endl;
     }
+    nlines++;
   }
+  t = stop_clock();
+  std::cerr << "[ENC] Encoded Finished (" << t << "s)\n";
+  std::cerr << "[ENC] Triples encoded: " << triples.size() << std::endl;
+  std::cerr << "[ENC] Lines readed: " << nlines << std::endl;
+  std::cerr << "[ENC] Predicates: " << P.Count() << std::endl;
+  std::cerr << "[ENC] Subjects + Objects: " << SO.Count() << std::endl;
   std::sort(triples.begin(), triples.end(), tuple_compare<1>());
 }
 
 void Build() {
-  std::cerr << "Starting building" << std::endl;
+  uint t;
+  start_clock();
+  std::cerr << "[BLD] Starting building\n";
   DictionaryEncoding SO;
   SO.Open(out_base + ".so");
   DictionaryEncoding P;
@@ -148,7 +176,7 @@ void Build() {
   uint curr_predicate = -1;
   lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
   uint i = 1;
-  std::cerr << "Building tree #" << (i++) << std::endl;
+  std::cerr << "[BLD] Building tree #" << (i++) << "...";
   for (auto &triple : triples) {
     uint subject, predicate, object;
     subject = boost::get<0>(triple);
@@ -160,7 +188,8 @@ void Build() {
         auto tree = builder.Build();
         auto compressed = tree->CompressLeaves();
         compressed->Save(&out);
-        std::cerr << "Building tree #" << (i++) << std::endl;
+        std::cerr << "OK" << std::endl;
+        std::cerr << "[BLD] Building tree #" << (i++) << "...";
       }
       curr_predicate = predicate;
       builder.Clear();
@@ -171,11 +200,14 @@ void Build() {
     auto tree = builder.Build();
     auto compressed = tree->CompressLeaves();
     compressed->Save(&out);
+    std::cerr << "OK" << std::endl;
   }
-  std::cerr << "Building finished" << std::endl;
+  t = stop_clock();
+  std::cerr << "[BLD] Building finished (" << t << "s)" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
+  ticks = (double)sysconf(_SC_CLK_TCK);
   ParseOps(argc, argv);
   Encode();
   Build();
