@@ -33,7 +33,7 @@ class Scanner;
 class Driver {
 public:
   /// construct a new parser driver context
-  Driver(const GraphDB &db);
+  Driver(const engine::GraphDB &db);
   /// enable debug output in the flex scanner
   bool trace_scanning;
 
@@ -68,7 +68,9 @@ public:
    */
   bool parse_file(const std::string& filename);
 
-  void query(std::string node, regexp::RegExp<std::string> &expr);
+  void query(std::string node,
+             regexp::RegExp<std::string> &expr,
+             bool count = false);
 
   // To demonstrate pure handling of parse errors, instead of
   // simply dumping them on the standard error output, we will pass
@@ -89,7 +91,7 @@ public:
 
   SymbolTable sym_table;
 
-  const GraphDB &db_;
+  const engine::GraphDB &db_;
 };
 
 #endif  // INCLUDE_DRIVER_H_

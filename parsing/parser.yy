@@ -58,17 +58,20 @@
   using re::alternation;
   using re::kleene;
   using re::converse;
+  using re::repetition;
   using re::RegExp;
 }
 %define api.value.type variant
 
-%type <RegExp<std::string>> reg_exp kleene converse atom
+%type <RegExp<std::string>> reg_exp kleene converse atom repetition
 %type <concat<std::string>> concat
 %type <alternation<std::string>> alternation
 
 %type <std::string> val
 %token <std::string> STR_LITERAL "str_literal"	
 %token <std::string> ID          "id"
+%token <uint>        NUM         "num"
+
 
 %token
   END 0       "end of file"
@@ -83,6 +86,10 @@
   LPAREN      "("
   RPAREN      ")"
   CONVERSE    "^"
+  LBRACE      "{"
+  RBRACE      "}"
+  COMMA       ","
+  COUNT       "c"
 ;
 
 
@@ -120,8 +127,12 @@ concat:
 
 /* type: regexp */
 kleene:
-  converse           {std::swap($$, $1);}
-| converse "*"       {$$ = kleene<std::string>(std::move($1));}
+  repetition           {std::swap($$, $1);}
+| repetition "*"       {$$ = kleene<std::string>(std::move($1));}
+
+repetition:
+  converse                 {std::swap($$, $1);}
+| atom "{" NUM "," NUM "}" {$$ = repetition<std::string>(std::move($1), $3, $5);}
 
 /* type: regexp */
 converse:
@@ -138,7 +149,9 @@ val:
   STR_LITERAL {$$ = $1;}
 | ID          {$$ = driver.sym_table.LookupSymbol($1);}
 
-query: "<" val ">" "[" reg_exp "]" {driver.query($2, $5);}
+query: 
+  "<" val ">" "[" reg_exp "]" "c" {driver.query($2, $5, true);}
+| "<" val ">" "[" reg_exp "]"     {driver.query($2, $5);}
 
 command: 
   assignment ';'

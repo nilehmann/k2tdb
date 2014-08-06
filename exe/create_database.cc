@@ -24,11 +24,10 @@
 
 #define URIREF <[^> ]+>
 #define ECHAR \\\\[tbnrf\042\047\\\\]
-#define HEX ([0-9]|[A-F]|[a-f])
-#define UCHAR (\\\\\165([0-9]|[A-F]|[a-f]){3}|\\\\\125([0-9]|[A-F]|[a-f]){8})
-#define LANGTAG (@[a-zA-Z]+(-[a-zA-Z0-9]+)*)
-#define STR_LITERAL \042([^\042]|ECHAR|UCHAR)+\042
-#define LITERAL STR_LITERAL(\\^\\^(URIREF|LANGTAG))?
+#define UCHAR \\\\\165[0-9A-Fa-f]{4}|\\\\\125[0-9A-Fa-f]{8}
+#define LANGTAG @[a-zA-Z]+(-[a-zA-Z0-9]+)*
+#define STR_LITERAL \042([^\042]|ECHAR|UCHAR)*\042
+#define LITERAL STR_LITERAL(\\^\\^URIREF|LANGTAG)?
 #define NAMEDNODE \047_:\047[A-Za-z][A-Za-z0-9]*
 #define SUBJECT URIREF|NAMEDNODE
 #define PREDICATE URIREF
@@ -118,13 +117,13 @@ struct tuple_compare {
 void Encode() {
   uint t;
   start_clock();
-  std::cerr << "[ENC] Starting encoding\n";
+  std::cout << "[ENC] Encoding started\n";
   DictionaryEncoding SO;
   SO.Create(out_base + ".so", w);
   DictionaryEncoding P;
   P.Create(out_base + ".p", 10000);
 
-  std::cerr << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
+  //std::clog << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
   std::string triple_str = STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.);
   std::regex triple(triple_str, std::regex::extended);
   std::smatch match;
@@ -140,7 +139,7 @@ void Encode() {
       std::string predicate = match.str(2);
       std::string object = match.str(3);
 
-      //std::cerr << "|" << subject << "| |" << predicate << "| |" << object << "|\n";
+      //std::clog << "|" << subject << "| |" << predicate << "| |" << object << "|\n";
 
       SO.Add(subject);
       SO.Add(object);
@@ -153,25 +152,26 @@ void Encode() {
 
       triples.emplace_back(isubject, ipredicate, iobject);
       if (triples.size() % 1000000 == 0)
-        std::cerr << "[ENC] Tiples encoded: " << triples.size() << std::endl;
+        std::cout << "[ENC] Triples encoded: " << triples.size() << std::endl;
     } else {
-      std::cerr << "[ENC] No matched line: " << line << std::endl;
+      std::clog << "[ENC] No matched line: " << line << std::endl;
     }
     nlines++;
   }
   t = stop_clock();
-  std::cerr << "[ENC] Encoded Finished (" << t << "s)\n";
-  std::cerr << "[ENC] Triples encoded: " << triples.size() << std::endl;
-  std::cerr << "[ENC] Lines readed: " << nlines << std::endl;
-  std::cerr << "[ENC] Predicates: " << P.Count() << std::endl;
-  std::cerr << "[ENC] Subjects + Objects: " << SO.Count() << std::endl;
+  std::cout << "[ENC] Encoded Finished (" << t << "s)\n";
+  std::clog << "[ENC] Time to encode: " << t << "s\n";
+  std::clog << "[ENC] Triples encoded: " << triples.size() << std::endl;
+  std::clog << "[ENC] Lines readed: " << nlines << std::endl;
+  std::clog << "[ENC] Predicates: " << P.Count() << std::endl;
+  std::clog << "[ENC] Subjects + Objects: " << SO.Count() << std::endl;
   std::sort(triples.begin(), triples.end(), tuple_compare<1>());
 }
 
 void Build() {
   uint t;
   start_clock();
-  std::cerr << "[BLD] Starting building\n";
+  std::cout << "[BLD] Building started\n";
   DictionaryEncoding SO;
   SO.Open(out_base + ".so");
   DictionaryEncoding P;
@@ -183,7 +183,8 @@ void Build() {
   uint curr_predicate = -1;
   lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
   uint i = 1;
-  std::cerr << "[BLD] Building tree #" << (i++) << "...";
+  uint links = 0;
+  std::cout << "[BLD] Building tree #" << (i++) << "...";
   for (auto &triple : triples) {
     uint subject, predicate, object;
     subject = boost::get<0>(triple);
@@ -195,8 +196,10 @@ void Build() {
         auto tree = builder.Build();
         auto compressed = tree->CompressLeaves();
         compressed->Save(&out);
-        std::cerr << "OK" << std::endl;
-        std::cerr << "[BLD] Building tree #" << (i++) << "...";
+        std::cout << "OK" << std::endl;
+        std::clog << "[BLD] Tree #" << i - 1 << ": " << tree->links() << " links\n";
+        links += tree->links();
+        std::cout << "[BLD] Building tree #" << (i++) << "...";
       }
       curr_predicate = predicate;
       builder.Clear();
@@ -207,10 +210,14 @@ void Build() {
     auto tree = builder.Build();
     auto compressed = tree->CompressLeaves();
     compressed->Save(&out);
-    std::cerr << "OK" << std::endl;
+    std::clog << "[BLD] Tree #" << i - 1 << ": " << tree->links() << " links\n";
+    links += tree->links();
+    std::cout << "OK" << std::endl;
   }
   t = stop_clock();
-  std::cerr << "[BLD] Building finished (" << t << "s)" << std::endl;
+  std::cout << "[BLD] Building finished (" << t << "s)" << std::endl;
+  std::clog << "[BLD] Time to build: " << t << "s" << std::endl;
+  std::clog << "[BLD] Total links: " << links << std::endl;
 }
 
 int main(int argc, char *argv[]) {

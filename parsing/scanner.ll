@@ -49,12 +49,14 @@ namespace re = regexp;
 %x str_literal
 
 id            [a-zA-Z][a-zA-Z_0-9]*
+num           [0-9]+
 blank         [ \t]
 assign        =
 reg_exp_left  \[
 reg_exp_right \]
 node_left     \<
 node_right    \>
+
 
 /* The following paragraph suffices to track locations accurately. Each time
  * yylex is invoked, the begin position is moved onto the end position. */
@@ -92,16 +94,28 @@ node_right    \>
 \|                  return token::ALTERNATION;
 \(                  return token::LPAREN;
 \)                  return token::RPAREN;
+\{                  return token::LBRACE;
+\}                  return token::RBRACE;
+\,                  return token::COMMA;
+c                   return token::COUNT;
 {assign}            return token::ASSIGN;
 {reg_exp_left}      return token::RE_LEFT; 
 {reg_exp_right}     return token::RE_RIGHT;
 {node_left}         return token::NODE_LEFT;
 {node_right}        return token::NODE_RIGHT;
 
+
+
+{num} {
+  yylval->build(std::stoi(std::string(yytext)));
+  return token::NUM;
+}
+
 {id} {
   yylval->build(std::string(yytext));
   return token::ID;
 }
+
 
 
 {blank}+

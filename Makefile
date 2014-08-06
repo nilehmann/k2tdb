@@ -20,8 +20,9 @@ EXE_OBJ = $(patsubst %.cc,obj/exe/%.o,$(EXE))
 BIN = $(EXE:%.cc=bin/%)
 
 
-//FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG -Wno-deprecated-register -ftemplate-backtrace-limit=0 
-FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic -Wno-deprecated-register
+FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG -Wno-deprecated-register
+#FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic -Wno-deprecated-register
+
 LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs\
 						-lcds\
 						-lk2tree\
@@ -29,7 +30,10 @@ LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs\
             -lboost_system \
 						-lboost_filesystem\
 						-lboost_program_options\
+						-lboost_timer\
 						-lkyotocabinet
+
+PROFILE=-lprofiler
 
 
 .PHONY: clean style test all bin
@@ -42,7 +46,7 @@ bin: $(BIN)
 # EXE
 bin/%: obj/exe/%.o $(OBJ)
 	@echo " [LNK] Linking $@"
-	@$(CXX)  $< $(OBJ) $(LIBRARIES) -o $@
+	@$(CXX) $(FLAGS)  $< $(OBJ) $(LIBRARIES) $(PROFILE) -o $@
 # END EXE
 
 bison: $(BISON_SRC)

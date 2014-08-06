@@ -11,15 +11,20 @@
 #include <parsing/scanner.h>
 #include <nfa.h>
 
-Driver::Driver(const GraphDB &db)
+Driver::Driver(const engine::GraphDB &db)
     : trace_scanning(false),
       trace_parsing(false),
       lexer(),
       sym_table(),
       db_(db) {}
 
-void Driver::query(std::string node, regexp::RegExp<std::string> &expr) {
-  db_.Compute(node, expr);
+void Driver::query(std::string node,
+                   regexp::RegExp<std::string> &expr,
+                   bool count) {
+  if (count)
+    std::cout << db_.Count(node, expr) << std::endl;
+  else
+    db_.Compute(node, expr);
 }
 
 bool Driver::parse_stream(std::istream& in,

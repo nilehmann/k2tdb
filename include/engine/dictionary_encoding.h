@@ -28,7 +28,7 @@ class DictionaryEncoding {
    * @result Regular expression where each symbol is the encoding of the string
    * in the original expression.
    */
-  regexp::RegExp<uint> Encode(regexp::RegExp<std::string> &exp) const;
+  regexp::RegExp<uint> Encode(const regexp::RegExp<std::string> &exp) const;
   /**
    * Check if exists and returns the encoding of the given string.
    * @param key The string to encode.

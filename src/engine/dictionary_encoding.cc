@@ -73,7 +73,7 @@ struct encode_visitor: public boost::static_visitor<regexp::RegExp<uint>> {
   }
 
   template<typename Op>
-  result_type operator()(regexp::multy_op<Op, std::string> &multy) const {
+  result_type operator()(const regexp::multy_op<Op, std::string> &multy) const {
     auto new_multy= regexp::multy_op<Op, uint>();
     for (auto &expr : multy.children)
       new_multy.push_expr(std::move(boost::apply_visitor(*this, expr)));
@@ -81,14 +81,19 @@ struct encode_visitor: public boost::static_visitor<regexp::RegExp<uint>> {
   }
 
   template<typename Op>
-  result_type operator()(regexp::unary_op<Op, std::string> &unary) const {
+  result_type operator()(const regexp::unary_op<Op, std::string> &unary) const {
     return regexp::unary_op<Op, uint>(
         std::move(boost::apply_visitor(*this, unary.expr)));
+  }
+
+  result_type operator()(const regexp::repetition<std::string> &rep) const {
+    return regexp::repetition<uint>(
+        std::move(boost::apply_visitor(*this, rep.expr)), rep.min, rep.max);
   }
 };
 
 regexp::RegExp<uint> DictionaryEncoding::Encode(
-    regexp::RegExp<std::string> &exp) const {
+    const regexp::RegExp<std::string> &exp) const {
   return boost::apply_visitor(encode_visitor(*this), exp);
 }
 

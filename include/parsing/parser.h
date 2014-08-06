@@ -49,9 +49,10 @@
   using re::alternation;
   using re::kleene;
   using re::converse;
+  using re::repetition;
   using re::RegExp;
 
-#line 55 "include/parsing/parser.h" // lalr1.cc:372
+#line 56 "include/parsing/parser.h" // lalr1.cc:372
 
 
 # include <vector>
@@ -127,7 +128,7 @@
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 namespace parser {
-#line 131 "include/parsing/parser.h" // lalr1.cc:372
+#line 132 "include/parsing/parser.h" // lalr1.cc:372
 
 
 
@@ -276,6 +277,7 @@ namespace parser {
     {
       // reg_exp
       // kleene
+      // repetition
       // converse
       // atom
       char dummy1[sizeof(RegExp<std::string>)];
@@ -290,6 +292,9 @@ namespace parser {
       // "id"
       // val
       char dummy4[sizeof(std::string)];
+
+      // "num"
+      char dummy5[sizeof(uint)];
 };
 
     /// Symbol semantic values.
@@ -315,17 +320,22 @@ namespace parser {
         END = 0,
         STR_LITERAL = 258,
         ID = 259,
-        ASSIGN = 260,
-        NODE_LEFT = 261,
-        NODE_RIGHT = 262,
-        RE_LEFT = 263,
-        RE_RIGHT = 264,
-        CONCAT = 265,
-        ALTERNATION = 266,
-        KLEENE = 267,
-        LPAREN = 268,
-        RPAREN = 269,
-        CONVERSE = 270
+        NUM = 260,
+        ASSIGN = 261,
+        NODE_LEFT = 262,
+        NODE_RIGHT = 263,
+        RE_LEFT = 264,
+        RE_RIGHT = 265,
+        CONCAT = 266,
+        ALTERNATION = 267,
+        KLEENE = 268,
+        LPAREN = 269,
+        RPAREN = 270,
+        CONVERSE = 271,
+        LBRACE = 272,
+        RBRACE = 273,
+        COMMA = 274,
+        COUNT = 275
       };
     };
 
@@ -367,6 +377,8 @@ namespace parser {
   basic_symbol (typename Base::kind_type t, const concat<std::string> v, const location_type& l);
 
   basic_symbol (typename Base::kind_type t, const std::string v, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const uint v, const location_type& l);
 
 
       /// Constructor for symbols with semantic value.
@@ -440,6 +452,10 @@ namespace parser {
 
     static inline
     symbol_type
+    make_NUM (const uint& v, const location_type& l);
+
+    static inline
+    symbol_type
     make_ASSIGN (const location_type& l);
 
     static inline
@@ -481,6 +497,22 @@ namespace parser {
     static inline
     symbol_type
     make_CONVERSE (const location_type& l);
+
+    static inline
+    symbol_type
+    make_LBRACE (const location_type& l);
+
+    static inline
+    symbol_type
+    make_RBRACE (const location_type& l);
+
+    static inline
+    symbol_type
+    make_COMMA (const location_type& l);
+
+    static inline
+    symbol_type
+    make_COUNT (const location_type& l);
 
 
     /// Build a parser object.
@@ -682,13 +714,13 @@ namespace parser {
     enum
     {
       yyeof_ = 0,
-      yylast_ = 36,     ///< Last index in yytable_.
-      yynnts_ = 12,  ///< Number of nonterminal symbols.
+      yylast_ = 42,     ///< Last index in yytable_.
+      yynnts_ = 13,  ///< Number of nonterminal symbols.
       yyempty_ = -2,
       yyfinal_ = 2, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
-      yyntokens_ = 17  ///< Number of tokens.
+      yyntokens_ = 22  ///< Number of tokens.
     };
 
 
@@ -699,7 +731,7 @@ namespace parser {
 
 #line 28 "parsing/parser.yy" // lalr1.cc:372
 } // parser
-#line 703 "include/parsing/parser.h" // lalr1.cc:372
+#line 735 "include/parsing/parser.h" // lalr1.cc:372
 
 
 

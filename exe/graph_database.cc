@@ -51,7 +51,7 @@ void ParseOps(int argc, char *argv[]) {
 }
 int main(int argc, char *argv[]) {
   ParseOps(argc, argv);
-  GraphDB db(db_name);
+  engine::GraphDB db(db_name);
   Driver d(db);
   d.parse_stdio();
 }

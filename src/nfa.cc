@@ -63,6 +63,19 @@ struct RegExp2NFA: public boost::static_visitor<uint> {
 
     return start;
   }
+
+  result_type operator()(const re::repetition<uint> &repeat) const {
+    uint curr_end = end_;
+    uint start;
+    for (uint i = repeat.max; i > 0; --i) {
+      start = boost::apply_visitor(RegExp2NFA(graph_, curr_end), repeat.expr);
+      if (i > repeat.min)
+        graph_->at(start).emplace_back(end_, EPS);
+      curr_end = start;
+    }
+
+    return start;
+  }
 };
 
 NFA::NFA(const re::RegExp<uint> &regexp): graph_(), start_(), accept_() {
@@ -71,7 +84,6 @@ NFA::NFA(const re::RegExp<uint> &regexp): graph_(), start_(), accept_() {
 
   start_ = boost::apply_visitor(RegExp2NFA(&graph_, accept_), regexp);
 }
-
 
 
 }  // namespace NFA
