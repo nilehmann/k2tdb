@@ -27,13 +27,13 @@ LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs\
 						-lcds\
 						-lk2tree\
 						-ldacs\
-            -lboost_system \
+						-lboost_system \
 						-lboost_filesystem\
 						-lboost_program_options\
 						-lboost_timer\
 						-lkyotocabinet
 
-PROFILE=-lprofiler
+#PROFILE=-lprofiler
 
 
 .PHONY: clean style test all bin

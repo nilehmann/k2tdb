@@ -19,6 +19,7 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/timer/timer.hpp>
 
 
 
@@ -39,23 +40,11 @@
 namespace po = boost::program_options;
 namespace lk2 = libk2tree;
 
-/* Time meassuring */
-double ticks;
-struct tms t1,t2;
-
-void start_clock() {
-	times (&t1);
-}
-
-double stop_clock() {
-	times (&t2);
-	return (t2.tms_utime-t1.tms_utime)/ticks;
-}
-/* end Time meassuring */
 
 std::string in_file, out_base;
 int k1, k2, kl, k1_levels;
 int w;
+int precision;
 
 //std::string trim(const std::string &s) {
   //if (s[0] == '<' || s[0] == '"')
@@ -69,6 +58,8 @@ void ParseOps(int argc, char *argv[]) {
   ops.add_options()
     ("help,h", "Print this help")
     ("so", po::value<int>(&w)->default_value(1000000),
+     "Expected number of subject and object")
+    ("precision,p", po::value<int>(&precision)->default_value(2),
      "Expected number of subject and object")
     ("k1", po::value<int>(&k1)->default_value(4), "Arity of the first leveles")
     ("k2", po::value<int>(&k2)->default_value(2), "Arity of the second part")
@@ -115,8 +106,9 @@ struct tuple_compare {
   }
 };
 void Encode() {
-  uint t;
-  start_clock();
+  boost::timer::auto_cpu_timer timer(
+      precision,
+      "[ENC] Encoding finished: %us user, %ss sys, %ws all\n");
   std::cout << "[ENC] Encoding started\n";
   DictionaryEncoding SO;
   SO.Create(out_base + ".so", w);
@@ -158,9 +150,6 @@ void Encode() {
     }
     nlines++;
   }
-  t = stop_clock();
-  std::cout << "[ENC] Encoded Finished (" << t << "s)\n";
-  std::clog << "[ENC] Time to encode: " << t << "s\n";
   std::clog << "[ENC] Triples encoded: " << triples.size() << std::endl;
   std::clog << "[ENC] Lines readed: " << nlines << std::endl;
   std::clog << "[ENC] Predicates: " << P.Count() << std::endl;
@@ -169,8 +158,9 @@ void Encode() {
 }
 
 void Build() {
-  uint t;
-  start_clock();
+  boost::timer::auto_cpu_timer timer(
+      precision,
+      "[BLD] Building finished: %us user, %ss sys, %ws all\n");
   std::cout << "[BLD] Building started\n";
   DictionaryEncoding SO;
   SO.Open(out_base + ".so");
@@ -185,6 +175,7 @@ void Build() {
   uint i = 1;
   uint links = 0;
   std::cout << "[BLD] Building tree #" << (i++) << "...";
+  std::cout.flush();
   for (auto &triple : triples) {
     uint subject, predicate, object;
     subject = boost::get<0>(triple);
@@ -197,9 +188,11 @@ void Build() {
         auto compressed = tree->CompressLeaves();
         compressed->Save(&out);
         std::cout << "OK" << std::endl;
+        std::cout.flush();
         std::clog << "[BLD] Tree #" << i - 1 << ": " << tree->links() << " links\n";
         links += tree->links();
         std::cout << "[BLD] Building tree #" << (i++) << "...";
+        std::cout.flush();
       }
       curr_predicate = predicate;
       builder.Clear();
@@ -214,14 +207,10 @@ void Build() {
     links += tree->links();
     std::cout << "OK" << std::endl;
   }
-  t = stop_clock();
-  std::cout << "[BLD] Building finished (" << t << "s)" << std::endl;
-  std::clog << "[BLD] Time to build: " << t << "s" << std::endl;
   std::clog << "[BLD] Total links: " << links << std::endl;
 }
 
 int main(int argc, char *argv[]) {
-  ticks = (double)sysconf(_SC_CLK_TCK);
   ParseOps(argc, argv);
   Encode();
   Build();
