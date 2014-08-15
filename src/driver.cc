@@ -19,12 +19,21 @@ Driver::Driver(const engine::GraphDB &db)
       db_(db) {}
 
 void Driver::query(std::string node,
-                   regexp::RegExp<std::string> &expr,
+                   const regexp::RegExp<std::string> &expr,
                    bool count) {
   if (count)
     std::cout << db_.Count(node, expr) << std::endl;
   else
     db_.Compute(node, expr);
+}
+
+void Driver::query(std::string start,
+                   std::string end,
+                   const regexp::RegExp<std::string> &expr) {
+  if (db_.ExistsPath(start, end, expr))
+    std::cout << "True" << std::endl;
+  else
+    std::cout << "False" << std::endl;
 }
 
 bool Driver::parse_stream(std::istream& in,

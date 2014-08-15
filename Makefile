@@ -1,4 +1,4 @@
-CXX = clang++
+#CXX = clang++
 
 K2TREE = ../k2tree
 

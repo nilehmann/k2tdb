@@ -99,6 +99,10 @@ void print_expression(const RegExp<T> &expr) {
 template<typename OpTag, typename T>
 struct multy_op {
   multy_op() {}
+  multy_op(RegExp<T> &&e1, RegExp<T> &&e2): children() {
+    children.push_back(std::move(e1));
+    children.push_back(std::move(e2));
+  }
   multy_op(multy_op &&rhs) noexcept {
     children.swap(rhs.children);
   }

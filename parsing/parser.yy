@@ -150,8 +150,9 @@ val:
 | ID          {$$ = driver.sym_table.LookupSymbol($1);}
 
 query: 
-  "<" val ">" "[" reg_exp "]" "c" {driver.query($2, $5, true);}
-| "<" val ">" "[" reg_exp "]"     {driver.query($2, $5);}
+  "<" val ">" "[" reg_exp "]" "c"            {driver.query($2, $5, true);}
+| "<" val ">" "[" reg_exp "]"                {driver.query($2, $5);}
+| "<" val ">" "[" reg_exp "]" "<" val ">"    {driver.query($2, $8, $5);}
 
 command: 
   assignment ';'

@@ -58,6 +58,9 @@ namespace fs = ::boost::filesystem;
 class GraphDB {
  public: GraphDB(fs::path db_name);
 
+  regexp::RegExp<uint> Encode(const regexp::RegExp<std::string> &exp) const;
+  uint Encode(const std::string &s) const;
+
   /**
    * Compute the regular expression query starting from the given node.
    * It first encode the node and regular expression using the
@@ -69,6 +72,10 @@ class GraphDB {
   void Compute(std::string n, const regexp::RegExp<std::string> &exp) const;
 
   uint Count(std::string n, const regexp::RegExp<std::string> &exp) const;
+
+  bool ExistsPath(std::string start,
+                  std::string end,
+                  const regexp::RegExp<std::string> &exp) const;
 
   
   /**
@@ -82,6 +89,9 @@ class GraphDB {
   void Compute(uint n, const regexp::RegExp<uint> &exp) const;
   
   uint Count(uint n, const regexp::RegExp<uint> &exp) const;
+
+  bool ExistsPath(uint start, uint end,
+                  const regexp::RegExp<uint> &exp) const;
 
 
   /**
@@ -140,6 +150,8 @@ class GraphDB {
     }
     return fun_impl<Fun>::Return(fun);
   }
+
+  bool ExistsPath(uint start, uint end, const NFA::NFA &nfa) const;
 
  private:
   std::vector<libk2tree::CompressedHybrid> k2trees_;

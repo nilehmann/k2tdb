@@ -66,7 +66,7 @@ struct RegExp2NFA: public boost::static_visitor<uint> {
 
   result_type operator()(const re::repetition<uint> &repeat) const {
     uint curr_end = end_;
-    uint start;
+    uint start = 0;
     for (uint i = repeat.max; i > 0; --i) {
       start = boost::apply_visitor(RegExp2NFA(graph_, curr_end), repeat.expr);
       if (i > repeat.min)

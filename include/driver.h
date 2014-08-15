@@ -69,8 +69,12 @@ public:
   bool parse_file(const std::string& filename);
 
   void query(std::string node,
-             regexp::RegExp<std::string> &expr,
+             const regexp::RegExp<std::string> &expr,
              bool count = false);
+
+  void query(std::string start,
+             std::string end,
+             const regexp::RegExp<std::string> &expr);
 
   // To demonstrate pure handling of parse errors, instead of
   // simply dumping them on the standard error output, we will pass
