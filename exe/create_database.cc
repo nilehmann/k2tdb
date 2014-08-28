@@ -52,6 +52,10 @@ int k1, k2, kl, k1_levels;
 int w;
 int precision;
 
+DictionaryEncoding SO;
+DictionaryEncoding P_Dic;
+std::ofstream k2tdb_out;
+
 void ParseOps(int argc, char *argv[]) {
   po::options_description ops("Usage: create_dictionary [options] input-graph"
                               " output-base\n"
@@ -108,15 +112,63 @@ struct tuple_compare {
     return boost::get<N>(a) < boost::get<N>(b);
   }
 };
+
+void BuildFromTriplesArray() {
+  std::sort(triples.begin(), triples.end(), tuple_compare<1>());
+
+  timeval t1, t2;
+  gettimeofday(&t1, NULL);
+  std::cout << "[BLD] Building started\n";
+
+  uint curr_predicate = -1;
+  lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
+  uint i = -1;
+  uint links = 0;
+  std::cout.flush();
+  for (auto &triple : triples) {
+    uint subject, predicate, object;
+    subject = boost::get<0>(triple);
+    predicate = boost::get<1>(triple);
+    object = boost::get<2>(triple);
+
+    if (curr_predicate != predicate) {
+      if (curr_predicate != (uint)-1) {
+        auto tree = builder.Build();
+        auto compressed = tree->CompressLeaves();
+        compressed->Save(&k2tdb_out);
+        std::cout << "OK" << std::endl;
+        std::cout.flush();
+        log_stream << "[BLD] Tree for '" << P_Dic.Decode(i) << "': " << tree->links() << " links\n";
+        links += tree->links();
+      }
+      curr_predicate = predicate;
+      builder.Clear();
+      i++;
+      std::cout << "[BLD] Building tree for '" << P_Dic.Decode(i) << "'...";
+      std::cout.flush();
+    }
+    builder.AddLink(subject, object);
+  }
+  if (curr_predicate != (uint)-1) {
+    auto tree = builder.Build();
+    auto compressed = tree->CompressLeaves();
+    compressed->Save(&k2tdb_out);
+    log_stream << "[BLD] Tree for '" << P_Dic.Decode(i) << ": " << tree->links() << "' links\n";
+    links += tree->links();
+    std::cout << "OK" << std::endl;
+  }
+  gettimeofday(&t2, NULL);
+  auto time = t2.tv_sec - t1.tv_sec;
+  time += (t2.tv_usec - t1.tv_usec)*1000000;
+
+  log_stream << "[BLD] Time to build: " << time << " s" << std::endl;
+  log_stream << "[BLD] Total links: " << links << std::endl;
+}
 void EncodeNT() {
   timeval t1, t2;
   gettimeofday(&t1, NULL);
 
   std::cout << "[ENC] Encoding started\n";
-  DictionaryEncoding SO;
-  SO.Create(out_base + ".so", w);
-  DictionaryEncoding P;
-  P.Create(out_base + ".p", 10000);
 
   //log_stream << STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.) << std::endl;
   std::string triple_str = STR((SUBJECT)WS+(PREDICATE)WS+(OBJECT)WS+\\.);
@@ -138,12 +190,12 @@ void EncodeNT() {
 
       SO.Add(subject);
       SO.Add(object);
-      P.Add(predicate);
+      P_Dic.Add(predicate);
 
       uint isubject, ipredicate, iobject;
       SO.Encode(subject, &isubject);
       SO.Encode(object, &iobject);
-      P.Encode(predicate, &ipredicate);
+      P_Dic.Encode(predicate, &ipredicate);
 
       triples.emplace_back(isubject, ipredicate, iobject);
       if (triples.size() % 1000000 == 0)
@@ -155,28 +207,27 @@ void EncodeNT() {
   }
   gettimeofday(&t2, NULL);
   auto time = t2.tv_sec - t1.tv_sec;
-  time += (t2.tv_usec + t1.tv_usec)*1000000;
+  time += (t2.tv_usec - t1.tv_usec)*1000000;
 
   log_stream << "[ENC] Time to encoded: " << time << " s" << std::endl;
   log_stream << "[ENC] Triples encoded: " << triples.size() << std::endl;
   log_stream << "[ENC] Lines readed: " << nlines << std::endl;
-  log_stream << "[ENC] Predicates: " << P.Count() << std::endl;
+  log_stream << "[ENC] Predicates: " << P_Dic.Count() << std::endl;
   log_stream << "[ENC] Subjects + Objects: " << SO.Count() << std::endl;
-  std::sort(triples.begin(), triples.end(), tuple_compare<1>());
 }
 
-void ReadPeople(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding &P) {
+void ReadPeople(std::ifstream &in) {
   typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
   boost::char_separator<char> sep("-");
 
-  P.Add("name");
-  P.Add("age");
-  P.Add("location");
+  P_Dic.Add("name");
+  P_Dic.Add("age");
+  P_Dic.Add("location");
 
   uint name_pred, age_pred, loc_pred;
-  P.Encode("name", &name_pred);
-  P.Encode("age", &age_pred);
-  P.Encode("location", &loc_pred);
+  P_Dic.Encode("name", &name_pred);
+  P_Dic.Encode("age", &age_pred);
+  P_Dic.Encode("location", &loc_pred);
 
   std::string line;
   uint i = 1;
@@ -219,19 +270,19 @@ void ReadPeople(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding &P
   log_stream << "[ENC] People encoded: " << i-1 << std::endl;
 }
 
-void ReadWebpages(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding &P) {
+void ReadWebpages(std::ifstream &in) {
   typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
   boost::char_separator<char> sep("-");
 
-  P.Add("url");
-  P.Add("creation");
+  P_Dic.Add("url");
+  P_Dic.Add("creation");
 
   uint url_pred, creation_pred;
-  P.Encode("url", &url_pred);
-  P.Encode("creation", &creation_pred);
+  P_Dic.Encode("url", &url_pred);
+  P_Dic.Encode("creation", &creation_pred);
 
   std::string line;
-  uint i = 1;
+  uint i = 0;
   while (std::getline(in, line)) {
     if (line == "</WEBPAGES>")
       break;
@@ -255,24 +306,25 @@ void ReadWebpages(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding 
     SO.Encode("http://www.site.org/webpage" + id + ".html", &url_enc);
     triples.emplace_back(id_enc, url_pred, url_enc);
 
-
+    i++;
     if (i % 1000000 == 0)
       std::cout << "[ENC] " << i << " webpages encoded.\n";
-    i++;
   }
   log_stream << "[ENC] Webpages encoded: " << i-1 << std::endl;
 }
-void ReadFriends(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding &P) {
+void ReadFriends(std::ifstream &in) {
   typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
   boost::char_separator<char> sep("-");
 
-  P.Add("friend");
+  lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
 
   uint friend_pred;
-  P.Encode("friend", &friend_pred);
+  P_Dic.Add("friend");
+  P_Dic.Encode("friend", &friend_pred);
 
+  std::cout << "[BLD] Building tree for 'friend'\n";
   std::string line;
-  uint i = 1;
+  uint i = 0;
   while (std::getline(in, line)) {
     if (line == "</FRIENDS>")
       break;
@@ -287,25 +339,29 @@ void ReadFriends(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding &
     SO.Encode("person"+from, &from_enc);
     SO.Encode("person"+to, &to_enc);
 
-    triples.emplace_back(from_enc, friend_pred, to_enc);
-    triples.emplace_back(to_enc, friend_pred, from_enc);
-    if (i % 1000000 == 0)
-      std::cout << "[ENC] " << i << " friends encoded.\n";
+    builder.AddLink(from_enc, to_enc);
+    builder.AddLink(to_enc, from_enc);
+
     i++;
+    if (i % 1000000 == 0)
+      std::cout << "[READ] " << i << " friends readed.\n";
   }
-  log_stream << "[ENC] Friend encoded: " << i-1 << std::endl;
+  auto tree = builder.Build();
+  auto compressed = tree->CompressLeaves();
+  compressed->Save(&k2tdb_out);
+  log_stream << "[READ] Friend readed: " << i << std::endl;
+  log_stream << "[BLD] Tree for 'friend': " << tree->links() << " links\n";
 }
-void ReadLikes(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding &P) {
+void ReadLikes(std::ifstream &in) {
   typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
   boost::char_separator<char> sep("-");
 
-  P.Add("like");
+  lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
+  P_Dic.Add("like");
 
-  uint like_pred;
-  P.Encode("like", &like_pred);
-
+  std::cout << "[BLD] Building tree for 'like'\n";
   std::string line;
-  uint i = 1;
+  uint i = 0;
   while (std::getline(in, line)) {
     if (line == "</LIKES>")
       break;
@@ -316,115 +372,90 @@ void ReadLikes(std::ifstream &in, DictionaryEncoding &SO, DictionaryEncoding &P)
     std::string to = *it;
 
     uint from_enc, to_enc;
-
     SO.Encode("person"+from, &from_enc);
     SO.Encode("webpage"+to, &to_enc);
 
-    triples.emplace_back(from_enc, like_pred, to_enc);
-    if (i % 1000000 == 0)
-      std::cout << "[ENC] " << i << " likes encoded.\n";
+    builder.AddLink(from_enc, to_enc);
+
     i++;
+    if (i % 1000000 == 0)
+      std::cout << "[READ] " << i << " likes readed.\n";
   }
-  log_stream << "[ENC] Likes encoded: " << i-1 << std::endl;
+  auto tree = builder.Build();
+  auto compressed = tree->CompressLeaves();
+  compressed->Save(&k2tdb_out);
+  log_stream << "[READ] Likes readed: " << i << std::endl;
+  log_stream << "[BLD] Tree for 'likes': " << tree->links() << " links\n";
 }
 
 
-void EncodeGD() {
+void EncodeAndBuildGD() {
   timeval t1, t2;
   gettimeofday(&t1, NULL);
-  DictionaryEncoding SO;
-  SO.Create(out_base + ".so", w);
-  DictionaryEncoding P;
-  P.Create(out_base + ".p", 10000);
 
   std::ifstream in(in_file, std::ifstream::in);
   std::string line;
-  while (std::getline(in, line)) {
-    if (line == "<PEOPLE>")
-        ReadPeople(in, SO, P);
-    else if (line == "<WEBPAGES>")
-        ReadWebpages(in, SO, P);
-    else if (line == "<FRIENDS>")
-        ReadFriends(in, SO, P);
-    else if (line == "<LIKES>")
-        ReadLikes(in, SO, P);
+
+  std::cout << "[ENC] Encoding Started\n";
+  std::getline(in, line);
+  if (line != "<PEOPLE>") {
+    std::cerr << "Expecting People block\n";
+    exit(1);
   }
-  std::sort(triples.begin(), triples.end(), tuple_compare<1>());
+  ReadPeople(in);
+
+  std::getline(in, line);
+  if (line != "<WEBPAGES>") {
+    std::cerr << "Expecting webpages block\n";
+    exit(1);
+  }
+  ReadWebpages(in);
+  uint npredicates = P_Dic.Count() + 2;
+  k2tdb_out.write(reinterpret_cast<char*>(&npredicates), sizeof(uint));
+  BuildFromTriplesArray();
+
+  triples.clear();
+
+  std::getline(in, line);
+  if (line != "<FRIENDS>") {
+    std::cerr << "Expecting friends block\n";
+    exit(1);
+  }
+  ReadFriends(in);
+
+  std::getline(in, line);
+  if (line != "<LIKES>"){
+    std::cerr << "Expecting likes block\n";
+    exit(1);
+  }
+  ReadLikes(in);
 
   gettimeofday(&t2, NULL);
   auto time = t2.tv_sec - t1.tv_sec;
-  time += (t2.tv_usec + t1.tv_usec)*1000000;
+  time += (t2.tv_usec - t1.tv_usec)*1000000;
 
-  log_stream << "[ENC] Time to encode: " << time << " s" << std::endl;
+  log_stream << " Total Time: " << time << " s" << std::endl;
 }
 
-void Build() {
-  timeval t1, t2;
-  gettimeofday(&t1, NULL);
-  std::cout << "[BLD] Building started\n";
-  DictionaryEncoding SO;
-  SO.Open(out_base + ".so");
-  DictionaryEncoding P;
-  P.Open(out_base + ".p");
-  std::ofstream out(out_base + ".k2tdb");
-
-  uint npredicates = P.Count();
-  out.write(reinterpret_cast<char*>(&npredicates), sizeof(uint));
-  uint curr_predicate = -1;
-  lk2::K2TreeBuilder builder(SO.Count(), k1, k2, kl, k1_levels);
-  uint i = 1;
-  uint links = 0;
-  std::cout << "[BLD] Building tree #" << (i++) << "...";
-  std::cout.flush();
-  for (auto &triple : triples) {
-    uint subject, predicate, object;
-    subject = boost::get<0>(triple);
-    predicate = boost::get<1>(triple);
-    object = boost::get<2>(triple);
-
-    if (curr_predicate != predicate) {
-      if (curr_predicate != (uint)-1) {
-        auto tree = builder.Build();
-        auto compressed = tree->CompressLeaves();
-        compressed->Save(&out);
-        std::cout << "OK" << std::endl;
-        std::cout.flush();
-        log_stream << "[BLD] Tree #" << i - 1 << ": " << tree->links() << " links\n";
-        links += tree->links();
-        std::cout << "[BLD] Building tree #" << (i++) << "...";
-        std::cout.flush();
-      }
-      curr_predicate = predicate;
-      builder.Clear();
-    }
-    builder.AddLink(subject, object);
-  }
-  if (curr_predicate != (uint)-1) {
-    auto tree = builder.Build();
-    auto compressed = tree->CompressLeaves();
-    compressed->Save(&out);
-    log_stream << "[BLD] Tree #" << i - 1 << ": " << tree->links() << " links\n";
-    links += tree->links();
-    std::cout << "OK" << std::endl;
-  }
-  gettimeofday(&t2, NULL);
-  auto time = t2.tv_sec - t1.tv_sec;
-  time += (t2.tv_usec + t1.tv_usec)*1000000;
-
-  log_stream << "[ENC] Time to encode: " << time << " s" << std::endl;
-  log_stream << "[BLD] Total links: " << links << std::endl;
-}
 
 int main(int argc, char *argv[]) {
   std::ofstream a;
   ParseOps(argc, argv);
   log_stream.open(out_base + ".log");
-  if (format == "gd")
-    EncodeGD();
-  else if (format == "nt")
+  SO.Create(out_base + ".so", w);
+  P_Dic.Create(out_base + ".p", 10000);
+  k2tdb_out.open(out_base + ".k2tdb");
+  if (format == "gd") {
+    EncodeAndBuildGD();
+  } else if (format == "nt") {
     EncodeNT();
-  else
+    uint npredicates = P_Dic.Count();
+    k2tdb_out.write(reinterpret_cast<char*>(&npredicates), sizeof(uint));
+    BuildFromTriplesArray();
+  } else {
     std::cout << "Error: format not accepted" << std::endl;
-  Build();
+  }
+
+  k2tdb_out.close();
   return 0;
 }
