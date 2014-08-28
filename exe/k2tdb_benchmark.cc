@@ -41,7 +41,7 @@ float Q1(const GraphDB &db, std::string name) {
   auto e = db.Encode(converse_name);
   uint id = db.Encode(name);
   clock_gettime(CLOCK_MONOTONIC, &t1);
-  db.Compute(id, e);
+  db.Count(id, e);
   clock_gettime(CLOCK_MONOTONIC, &t2);
 
   return t2 - t1;
@@ -179,12 +179,12 @@ int main(int argc, char *argv[]) {
     float time;
     switch (q) {
       case 1: time = Q1(gdb, str1); break;
-      case 2: time = Q2(gdb, str1); break;
-      case 3: time = Q3(gdb, str1); break;
-      case 4: time = Q4(gdb, str1); break;
-      case 5: time = Q5(gdb, str1); break;
-      case 6: time = Q6(gdb, str1); break;
-      case 7: time = Q7(gdb, str1); break;
+      case 2: time = Q2(gdb, "webpage" + str1); break;
+      case 3: time = Q3(gdb, "person" + str1); break;
+      case 4: time = Q4(gdb, "person" + str1); break;
+      case 5: time = Q5(gdb, "person" + str1); break;
+      case 6: time = Q6(gdb, "person" + str1); break;
+      case 7: time = Q7(gdb, "person" + str1); break;
       case 8: time = Q8(gdb, "person" + str1, "person" + str2); break;
       case 9: time = Q9(gdb, str1); break;
       case 10: time = Q10(gdb, str1); break;
