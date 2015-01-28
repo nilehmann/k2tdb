@@ -1,4 +1,4 @@
 graph-regular-queries
 =====================
 
-Regular Expressions Queries for a Graph Database using k2trees.
+Regular Path Queries for Graph Databases using k2trees.
