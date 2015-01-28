@@ -1,0 +1,9 @@
+[ENC] Time to encoded: 0.006049 s
+[ENC] Triples encoded: 25
+[ENC] Lines readed: 25
+[ENC] Predicates: 2
+[ENC] Subjects + Objects: 19
+[BLD] Tree for '<http://example/integrante>': 16 links
+[BLD] Tree for '<http://example/estilo>: 9' links
+[BLD] Time to build: 0.000119 s
+[BLD] Total links: 25

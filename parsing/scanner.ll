@@ -11,15 +11,15 @@
 
 #include <string>
 
-#include <parsing/scanner.h>
+#include <cli/scanner.h>
 
 /* By default yylex returns int, we use token_type. Unfortunately yyterminate
  * by default returns 0, which is not of token_type. */
-#define yyterminate() return token::END
+#define yyterminate() return token::EOL
 
 typedef parser::Parser::token token;
 typedef parser::Parser::token_type token_type;
-namespace re = regexp;
+/*namespace re = k2tdb::queries::regexp;*/
 
 /* This disables inclusion of unistd.h, which is not available under Visual C++
  * on Win32. The C++ scanner uses STL streams instead. */
@@ -46,16 +46,14 @@ namespace re = regexp;
 /* enables the use of start condition stacks */
 %option stack
 
-%x str_literal
+%x str_literal escaped_literal
 
-id            [a-zA-Z][a-zA-Z_0-9]*
+lit           [a-zA-Z][a-zA-Z_0-9]*
 num           [0-9]+
 blank         [ \t]
 assign        =
 reg_exp_left  \[
 reg_exp_right \]
-node_left     \<
-node_right    \>
 
 
 /* The following paragraph suffices to track locations accurately. Each time
@@ -72,6 +70,7 @@ node_right    \>
 
 <str_literal>\" {
   BEGIN(INITIAL);
+  str_buff << "\"";
   yylval->build(str_buff.str());
   return token::STR_LITERAL;
 }
@@ -86,12 +85,33 @@ node_right    \>
 \" {
   BEGIN(str_literal);
   str_buff.str("");
+  str_buff << "\"";
 }
 
-\.                  return token::CONCAT;
+<escaped_literal>\> {
+  BEGIN(INITIAL);
+  str_buff << ">";
+  yylval->build(str_buff.str());
+  return token::ESCAPED_LITERAL;
+}
+
+<escaped_literal>[^\n\>]+ {
+  str_buff << std::string(yytext);
+}
+<escaped_literal>\n {
+  printf("[error]");
+}
+
+\< {
+  BEGIN(escaped_literal);
+  str_buff.str("");
+  str_buff << "<";
+}
+
+\/                  return token::CONCAT;
 \*                  return token::KLEENE;
 \^                  return token::CONVERSE;
-\|                  return token::ALTERNATION;
+\+                  return token::ALTERNATION;
 \(                  return token::LPAREN;
 \)                  return token::RPAREN;
 \{                  return token::LBRACE;
@@ -101,8 +121,8 @@ c                   return token::COUNT;
 {assign}            return token::ASSIGN;
 {reg_exp_left}      return token::RE_LEFT; 
 {reg_exp_right}     return token::RE_RIGHT;
-{node_left}         return token::NODE_LEFT;
-{node_right}        return token::NODE_RIGHT;
+:                   return token::COLON;
+\n                  return token::EOL;
 
 
 
@@ -111,20 +131,15 @@ c                   return token::COUNT;
   return token::NUM;
 }
 
-{id} {
+{lit} {
   yylval->build(std::string(yytext));
-  return token::ID;
+  return token::LIT;
 }
 
-
-
 {blank}+
-[\n]+
 
-\;                  return static_cast<token_type>(*yytext);
-.                   printf("[error]");
+.           printf("[error]");
 
 
 %%
-
 

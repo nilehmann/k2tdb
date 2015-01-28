@@ -52,8 +52,8 @@ flags = [
 # For a C project, you would set this to 'c' instead of 'c++'.
 '-x',
 'c++',
-'-L../k2tree/lib',
-'-L../k2tree/dacs',
+'-L../libk2tree/lib',
+'-L../libk2tree/dacs',
 '-lcds',
 '-lk2tree',
 '-ldacs',
@@ -62,7 +62,7 @@ flags = [
 '-lboost_program_options',
 '-lkyotocabine',
 '-Iinclude/',
-'-I../k2tree/include'
+'-I../libk2tree/include'
 ]
 
 

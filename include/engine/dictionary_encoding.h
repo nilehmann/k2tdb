@@ -10,15 +10,20 @@
 #ifndef INCLUDE_DICTIONARY_ENCODING_H_
 #define INCLUDE_DICTIONARY_ENCODING_H_
 
-#include <graph_queries_basic.h>
-#include <regexp.h>
-#include <secondary_storage/fixed_array.h>
+#include <k2tdb_basics.h>
+#include <queries/regexp.h>
 #include <kchashdb.h>  // kyoto cabinet
 #include <boost/filesystem.hpp>
+
+namespace k2tdb {
+namespace engine {
 
 
 class DictionaryEncoding {
  public:
+  DictionaryEncoding();
+  DictionaryEncoding(const boost::filesystem::path &base_name, uint expected);
+  DictionaryEncoding(const boost::filesystem::path &base_name);
   void Create(const boost::filesystem::path &base_name, uint expected);
   void Open(const boost::filesystem::path &base_name);
   /**
@@ -58,13 +63,14 @@ class DictionaryEncoding {
    */
   bool Add(const std::string &s);
 
-  uint Count();
+  uint Count() const;
   ~DictionaryEncoding();
  private:
   mutable kyotocabinet::HashDB db_;
-  //secondary_storage::FixedArray<std::string> array_;
   mutable kyotocabinet::HashDB inverse_db_;
 };
 
+}  // namespace engine
+}  // namespace k2tdb
 
 #endif  // INCLUDE_DICTIONARY_ENCODING_H_

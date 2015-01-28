@@ -1,13 +1,13 @@
-#CXX = clang++
+CXX = clang++
 
-K2TREE = ../k2tree
+K2TREE = ../libk2tree
 
 HEADERS = $(shell find include tests -name *.h)
 
-INCLUDE = -Iinclude/ -I$(K2TREE)/include
+INCLUDE = -Iinclude/ -I$(K2TREE)/include -I$(K2TREE)/dacs/src
 
-BISON_SRC = src/parsing/parser.cc
-FLEX_SRC = src/parsing/scanner.cc
+BISON_SRC = src/cli/parsing/parser.cc
+FLEX_SRC = src/cli/scanner.cc
 
 TESTS_SRC = $(shell find tests -name *.cc)
 TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
@@ -21,10 +21,10 @@ BIN = $(EXE:%.cc=bin/%)
 
 
 FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG -Wno-deprecated-register
-#FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic -Wno-deprecated-register
+#FLAGS = -std=c++11 -O2  -g -Wall -Wextra -Wpedantic -Wno-deprecated-register
 
 LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs\
-						-lcds\
+						-lcds2\
 						-lk2tree\
 						-ldacs\
 						-lboost_system \
@@ -39,7 +39,10 @@ LIBRARIES = -L$(K2TREE)/lib -L$(K2TREE)/dacs\
 .PHONY: clean style test all bin
 .SECONDARY:
 
-all: test bin
+all: test bin lib
+
+lib: $(OBJ)
+	ar rvs lib/libk2tdb.a $(OBJ)
 
 bin: $(BIN)
 
@@ -52,13 +55,13 @@ bin/%: obj/exe/%.o $(OBJ)
 bison: $(BISON_SRC)
 $(BISON_SRC): parsing/parser.yy
 	@echo " [GEN] Generating Bison files"
-	@bison -o src/parsing/parser.cc --defines=include/parsing/parser.h parsing/parser.yy
-	@mv src/parsing/location.hh include/parsing/location.h
-	@mv src/parsing/position.hh include/parsing/position.h
-	@mv src/parsing/stack.hh include/parsing/stack.h
-	@sed -i -r 's/"(parser|stack|location|position).(hh|h)"/<parsing\/\1.h>/g'\
-				include/parsing/parser.h include/parsing/position.h\
-				include/parsing/stack.h include/parsing/location.h\
+	@bison -o src/cli/parsing/parser.cc --defines=include/cli/parsing/parser.h parsing/parser.yy
+	@mv src/cli/parsing/location.hh include/cli/parsing/location.h
+	@mv src/cli/parsing/position.hh include/cli/parsing/position.h
+	@mv src/cli/parsing/stack.hh include/cli/parsing/stack.h
+	@sed -i -r 's/"(parser|stack|location|position).(hh|h)"/<cli\/parsing\/\1.h>/g'\
+				include/cli/parsing/parser.h include/cli/parsing/position.h\
+				include/cli/parsing/stack.h include/cli/parsing/location.h\
 				$(BISON_SRC)
 
 flex: $(FLEX_SRC)
@@ -111,11 +114,11 @@ clean_regular:
 clean_bison:
 	@echo " [CLN] Cleaning parsing"
 	@touch .dummy
-	@rm -f include/parsing/location.h\
-			include/parsing/position.h\
-		  include/parsing/stack.h\
-		  include/parsing/parser.h\
-			src/parsing/parser.cc\
+	@rm -f include/cli/parsing/location.h\
+			include/cli/parsing/position.h\
+		  include/cli/parsing/stack.h\
+		  include/cli/parsing/parser.h\
+			src/cli/parsing/parser.cc\
 			.dummy
 clean_flex:
 	@echo " [CLN] Cleaning flex"

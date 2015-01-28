@@ -41,7 +41,7 @@
 /* The driver is passed by reference to the parser and to the scanner. This
  * provides a simple but effective pure interface, not relying on global
  * variables. */
-%parse-param { class Driver& driver }
+%parse-param { class k2tdb::cli::Driver& driver }
 
 
 /* verbose error messages */
@@ -51,9 +51,10 @@
 
 
 %code requires {
-  #include <regexp.h>
+  #include <queries/regexp.h>
+  #include <cli/driver.h>
   
-  namespace re = regexp;
+  namespace re = k2tdb::regexp;
   using re::concat;
   using re::alternation;
   using re::kleene;
@@ -66,22 +67,21 @@
 %type <RegExp<std::string>> reg_exp kleene converse atom repetition
 %type <concat<std::string>> concat
 %type <alternation<std::string>> alternation
-
 %type <std::string> val
+
 %token <std::string> STR_LITERAL "str_literal"	
-%token <std::string> ID          "id"
+%token <std::string> ESCAPED_LITERAL "escaped_literal"	
+%token <std::string> LIT         "lit"
 %token <uint>        NUM         "num"
 
 
 %token
-  END 0       "end of file"
+  EOL 0       "end of file"
   ASSIGN      "="
-  NODE_LEFT   "<"
-  NODE_RIGHT  ">"
   RE_LEFT     "["
   RE_RIGHT    "]"
-  CONCAT      "."
-  ALTERNATION "|"
+  CONCAT      "/"
+  ALTERNATION "+"
   KLEENE      "*"
   LPAREN      "("
   RPAREN      ")"
@@ -90,13 +90,14 @@
   RBRACE      "}"
   COMMA       ","
   COUNT       "c"
+  COLON       ":"
 ;
 
 
 
 %code top {
- #include <driver.h>
- #include <parsing/scanner.h>
+  #include <cli/scanner.h>
+  /*#include <cli/driver.h>*/
 
   /* this "connects" the bison parser in the driver to the flex scanner class
    * object. it defines the yylex() function call to pull the next token from the
@@ -109,7 +110,10 @@
 %% /*** Grammar Rules ***/
 
 
-assignment: ID "=" STR_LITERAL {driver.sym_table.SetSymbol($1, $3);}
+assignment: 
+  LIT "=" STR_LITERAL     {driver.sym_table.SetSymbol($1, $3);}
+| LIT "=" ESCAPED_LITERAL {driver.sym_table.SetSymbol($1, $3);}
+| LIT "=" LIT             {driver.sym_table.SetSymbol($1, $3);}
 
 /* type: regexp */
 reg_exp: alternation {$$ = std::move($1);}
@@ -117,12 +121,12 @@ reg_exp: alternation {$$ = std::move($1);}
 /* type: alternation */
 alternation:
   concat                  {$$.push_expr(std::move($1)); }
-| alternation "|" concat  {std::swap($$, $1); $$.push_expr(std::move($3)); }
+| alternation "+" concat  {std::swap($$, $1); $$.push_expr(std::move($3)); }
 
 /* type: concat */
 concat:
   kleene             {$$.push_expr(std::move($1)); }
-| concat "." kleene  {std::swap($$, $1), $$.push_expr(std::move($3)); }
+| concat "/" kleene  {std::swap($$, $1), $$.push_expr(std::move($3)); }
 | concat kleene      {std::swap($$, $1), $$.push_expr(std::move($2)); }
 
 /* type: regexp */
@@ -136,27 +140,31 @@ repetition:
 
 /* type: regexp */
 converse:
-  atom               {std::swap($$, $1);}
-| "^" atom           {$$ = converse<std::string>(std::move($2));}
+  atom      {std::swap($$, $1);}
+| atom "^"  {$$ = converse<std::string>(std::move($1));}
 
 /* type: regexp */
 atom:
-  val                {$$ = $1;}
-| "(" reg_exp ")"    {std::swap($$, $2);}
+  val              {$$ = $1;}
+| "(" reg_exp ")"  {std::swap($$, $2);}
 
-/* type: int */
+
+/* type: string */
 val: 
-  STR_LITERAL {$$ = $1;}
-| ID          {$$ = driver.sym_table.LookupSymbol($1);}
+  STR_LITERAL      {$$ = $1;}
+| ESCAPED_LITERAL  {$$ = $1;}
+| LIT              {$$ = $1;}
+| ":" LIT          {$$ = driver.sym_table.LookupSymbol($2);}
 
 query: 
-  "<" val ">" "[" reg_exp "]" "c"            {driver.query($2, $5, true);}
-| "<" val ">" "[" reg_exp "]"                {driver.query($2, $5);}
-| "<" val ">" "[" reg_exp "]" "<" val ">"    {driver.query($2, $8, $5);}
+  val "[" reg_exp "]" "c"  {driver.query($1, $3, true);}
+| val "[" reg_exp "]"      {driver.query($1, $3);}
+| val "[" reg_exp "]" val  {driver.query($1, $5, $3);}
 
 command: 
-  assignment ';'
-| query ';'
+  assignment EOL    {std::cout << "[k2tdb] ";}
+| query EOL         {std::cout << "[k2tdb] ";}
+/*| EOL               {std::cout << "[k2tdb] ";}*/
 
 start	: /* empty */
 	| start command

@@ -7,9 +7,10 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <nfa.h>
+#include <queries/nfa.h>
 #include <algorithm>
 
+namespace k2tdb {
 namespace NFA {
 
 struct RegExp2NFA: public boost::static_visitor<uint> {
@@ -87,3 +88,4 @@ NFA::NFA(const re::RegExp<uint> &regexp): graph_(), start_(), accept_() {
 
 
 }  // namespace NFA
+}  // namespace k2tdb

@@ -1,0 +1,18 @@
+[ENC] No matched line: # started 2013-07-10t03:11:48z
+[ENC] Time to encoded: 0.005698 s
+[ENC] Triples encoded: 23
+[ENC] Lines readed: 24
+[ENC] Predicates: 10
+[ENC] Subjects + Objects: 26
+[BLD] Tree for '<estilo>': 3 links
+[BLD] Tree for '<integrante>': 2 links
+[BLD] Tree for '<nombre>': 1 links
+[BLD] Tree for '<nombreAlternativo>': 3 links
+[BLD] Tree for '<http://www.w3.org/2000/01/rdf-schema#label>': 1 links
+[BLD] Tree for '<http://www.geonames.org/ontology#alternateName>': 2 links
+[BLD] Tree for '<http://>': 3 links
+[BLD] Tree for '<www.>': 1 links
+[BLD] Tree for '<dominio.com>': 5 links
+[BLD] Tree for '<ww.>: 2' links
+[BLD] Time to build: 0.000285 s
+[BLD] Total links: 23
